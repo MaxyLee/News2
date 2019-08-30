@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="layout_array">
+        <item>@layout/layout_recommend</item>
+        <item>@layout/layout_entertainment</item>
+        <item>@layout/layout_military</item>
+        <item>@layout/layout_education</item>
+        <item>@layout/layout_culture</item>
+        <item>@layout/layout_health</item>
+        <item>@layout/layout_finance</item>
+        <item>@layout/layout_sports</item>
+        <item>@layout/layout_automotive</item>
+        <item>@layout/layout_technology</item>
+        <item>@layout/layout_society</item>
+    </array>
+
+    <array name="listview_array">
+        <item>@id/listview_recommend</item>
+        <item>@id/listview_entertainment</item>
+        <item>@id/listview_military</item>
+        <item>@id/listview_education</item>
+        <item>@id/listview_culture</item>
+        <item>@id/listview_health</item>
+        <item>@id/listview_finance</item>
+        <item>@id/listview_sports</item>
+        <item>@id/listview_automotive</item>
+        <item>@id/listview_technology</item>
+        <item>@id/listview_society</item>
+    </array>
+</resources>
