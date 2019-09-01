@@ -1,17 +1,13 @@
 package com.example.news2;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import android.os.Handler;
 import android.os.Message;
@@ -40,13 +36,11 @@ import android.view.Menu;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,MyListView.LoadListener {
 
     private static final int numOfCategories = 11;
     private static final String[] categories = {"Recommend", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
@@ -58,15 +52,13 @@ public class MainActivity extends AppCompatActivity
     private NewsAdapter[] mNewsAdapters = new NewsAdapter[numOfCategories];
     private ArrayList<View> views = new ArrayList<>();
     private View[] mViews = new View[numOfCategories];
-    private ListView[] mListViews = new ListView[numOfCategories];
+    private MyListView[] mListViews = new MyListView[numOfCategories];
     private ArrayList<NewsItem> news = new ArrayList<>();
     private int[] layoutIds = new int[numOfCategories];
     private int[] listviewIds = new int[numOfCategories];
     private boolean[] selected = new boolean[numOfCategories];
     private String[] titles = new String[numOfCategories];
-    public Handler mHandler;
-    public View ftView;
-    public boolean isLoading = false;
+    public View ftView,hdView;
     public int currentId = 11;
 
     @Override
@@ -77,6 +69,13 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListViews[0].smoothScrollToPosition(mListViews[0].getCount());
+            }
+        });
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -85,22 +84,19 @@ public class MainActivity extends AppCompatActivity
 
         LayoutInflater li = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ftView = li.inflate(R.layout.footer_view,null);
-        mHandler = new MyHandler();
+        hdView = li.inflate(R.layout.header_view,null);
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
-        initView();
+        init();
         vp.setAdapter(mAdpter);
         pagerTabStrip.setTabIndicatorColor(0xffc17b41);
         pagerTabStrip.setTextColor(0xffc17b41);
 
-        for(int i=0;i<numOfCategories;i++){
-            mNewsAdapters[i] = new NewsAdapter(MainActivity.this,news);
-            mListViews[i].setAdapter(mNewsAdapters[i]);
-        }
+
 
     }
 
-    private void initView() {
+    private void init() {
         TypedArray layout_array = this.getResources().obtainTypedArray(R.array.layout_array);
         TypedArray listview_array = this.getResources().obtainTypedArray(R.array.listview_array);
         for(int i=0;i<numOfCategories;i++){
@@ -127,7 +123,7 @@ public class MainActivity extends AppCompatActivity
 
 
         for(int i=0;i<layout_array.length();i++){
-            mListViews[i] = (ListView) views.get(i).findViewById(listviewIds[i]);
+            mListViews[i] = (MyListView) views.get(i).findViewById(listviewIds[i]);
             mListViews[i].setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -136,23 +132,12 @@ public class MainActivity extends AppCompatActivity
                     startActivity(intent);
                 }
             });
+            mListViews[i].setInterface(this);
         }
-
-        mListViews[0].setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView absListView, int i) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
-                if(absListView.getLastVisiblePosition()==i2-1 && mListViews[0].getCount()>=10 && isLoading==false){
-                    isLoading = true;
-                    Thread thread = new ThreadGetData();
-                    thread.start();
-                }
-            }
-        });
+        for(int i=0;i<numOfCategories;i++){
+            mNewsAdapters[i] = new NewsAdapter(MainActivity.this,news);
+            mListViews[i].setAdapter(mNewsAdapters[i]);
+        }
     }
 
     @Override
@@ -254,6 +239,30 @@ public class MainActivity extends AppCompatActivity
         startActivity(searchIntent);
     }
 
+    @Override
+    public void PullLoad() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<NewsItem> get = refreshData();
+                mNewsAdapters[0].addBefore(get);
+                mListViews[0].loadComplete();
+            }
+        },1000);
+    }
+
+    @Override
+    public void onLoad() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<NewsItem> get = loadData();
+                mNewsAdapters[0].addNewsItems(get);
+                mListViews[0].loadComplete();
+            }
+        },1000);
+    }
+
 
     class MyAdapter extends PagerAdapter {
         @Override
@@ -286,27 +295,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    class MyHandler extends Handler {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);//may has bug there
-            switch (msg.what){
-                case 0:
-                    mListViews[0].addFooterView(ftView);
-                    break;
-                case 1:
-                     mNewsAdapters[0].addNewsItems((ArrayList<NewsItem>)msg.obj);
-                     mListViews[0].removeFooterView(ftView);
-                     isLoading = false;
-                    break;
-                default:
-                    break;
 
-            }
-        }
-    }
-
-    private ArrayList<NewsItem> getMoreData() {
+    private ArrayList<NewsItem> loadData() {
         ArrayList<NewsItem> lst = new ArrayList<>();
         lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
         lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
@@ -314,18 +304,10 @@ public class MainActivity extends AppCompatActivity
         return lst;
     }
 
-    class ThreadGetData extends Thread {
-        @Override
-        public void run() {
-            mHandler.sendEmptyMessage(0);
-            ArrayList<NewsItem> get = getMoreData();
-            try{
-                sleep(1000);
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
-            Message msg = mHandler.obtainMessage(1,get);
-            mHandler.sendMessage(msg);
-        }
+    private ArrayList<NewsItem> refreshData() {
+        ArrayList<NewsItem> lst = new ArrayList<>();
+        lst.add(new NewsItem("newsRefreshed",R.mipmap.ic_launcher));
+        return lst;
     }
+
 }

@@ -51,4 +51,9 @@ public class NewsAdapter extends BaseAdapter {
         mNewsList.addAll(newsList);
         this.notifyDataSetChanged();
     }
+
+    public void addBefore(ArrayList<NewsItem> newsList) {
+        mNewsList.addAll(0,newsList);
+        this.notifyDataSetChanged();
+    }
 }
