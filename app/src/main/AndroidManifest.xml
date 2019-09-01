@@ -19,7 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NewsActivity">
+        <activity android:name=".NewsActivity"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity android:name=".CategoryActivity">
+        </activity>
+        <activity android:name=".SearchActivity">
         </activity>
     </application>
 

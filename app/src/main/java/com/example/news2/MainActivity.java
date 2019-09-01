@@ -1,7 +1,13 @@
 package com.example.news2;
 
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -39,17 +45,20 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int numOfCategories = 11;
+    private static final String[] categories = {"Recommend", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
 
     private ViewPager vp;
     private PagerTabStrip pagerTabStrip;
     private MyAdapter mAdpter = new MyAdapter();
+    private AlertDialog.Builder mBuilder;
     private ArrayList<View> views = new ArrayList<>();
     private View[] mViews = new View[numOfCategories];
-    private String[] categories = {"Recommend", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
-    private  ListView[] mListViews = new ListView[numOfCategories];
+    private ListView[] mListViews = new ListView[numOfCategories];
     private ArrayList<NewsItem> news = new ArrayList<>();
     private int[] layoutIds = new int[numOfCategories];
     private int[] listviewIds = new int[numOfCategories];
+    private boolean[] selected = new boolean[numOfCategories];
+    private String[] titles = new String[numOfCategories];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,14 +66,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -84,12 +85,15 @@ public class MainActivity extends AppCompatActivity
             mNewsAdapters[i] = new NewsAdapter(MainActivity.this,news);
             mListViews[i].setAdapter(mNewsAdapters[i]);
         }
+
     }
 
     private void initView() {
         TypedArray layout_array = this.getResources().obtainTypedArray(R.array.layout_array);
         TypedArray listview_array = this.getResources().obtainTypedArray(R.array.listview_array);
         for(int i=0;i<numOfCategories;i++){
+            selected[i] = true;
+            titles[i] = categories[i];
             layoutIds[i] = layout_array.getResourceId(i,0);
             listviewIds[i] = listview_array.getResourceId(i,0);
             mViews[i] = getLayoutInflater().inflate(layoutIds[i],null);
@@ -147,8 +151,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.search) {
+            search();
         }
 
         return super.onOptionsItemSelected(item);
@@ -162,17 +166,14 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_category) {
             changeCategory();
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_tools) {
-
+        } else if (id == R.id.nav_search) {
+            search();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
 
         }
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -180,9 +181,50 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void changeCategory() {
-        views.remove(0);
+        final boolean[] s = new boolean[numOfCategories];
+        for(int i=0;i<numOfCategories;i++)
+            s[i] = selected[i];
+        mBuilder = new AlertDialog.Builder(this);
+        mBuilder.setTitle("Category:");
+        mBuilder.setMultiChoiceItems(categories, selected, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+
+            }
+        });
+        mBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                updateView();
+            }
+        });
+        mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                for(int j=0;j<numOfCategories;j++)
+                    selected[j] = s[j];
+            }
+        });
+        mBuilder.show();
+    }
+
+    private void updateView() {
+        views.clear();
+        int cnt = 0;
+        for(int i=0;i<numOfCategories;i++){
+            if(selected[i]){
+                views.add(mViews[i]);
+                titles[cnt++] = categories[i];
+            }
+        }
         mAdpter.notifyDataSetChanged();
     }
+
+    private void search() {
+        Intent searchIntent = new Intent(MainActivity.this,SearchActivity.class);
+        startActivity(searchIntent);
+    }
+
 
     class MyAdapter extends PagerAdapter {
         @Override
@@ -211,7 +253,7 @@ public class MainActivity extends AppCompatActivity
         @Nullable
         @Override
         public CharSequence getPageTitle(int position) {
-            return categories[position];
+            return titles[position];
         }
 
     }

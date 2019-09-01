@@ -28,4 +28,18 @@
         <item>@id/listview_technology</item>
         <item>@id/listview_society</item>
     </array>
+
+    <array name="checkbox_array">
+        <item>@id/checkbox_recommend</item>
+        <item>@id/checkbox_entertainment</item>
+        <item>@id/checkbox_military</item>
+        <item>@id/checkbox_education</item>
+        <item>@id/checkbox_culture</item>
+        <item>@id/checkbox_health</item>
+        <item>@id/checkbox_finance</item>
+        <item>@id/checkbox_sports</item>
+        <item>@id/checkbox_automotive</item>
+        <item>@id/checkbox_technology</item>
+        <item>@id/checkbox_society</item>
+    </array>
 </resources>
