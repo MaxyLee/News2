@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NewsAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
@@ -16,18 +17,18 @@ public class NewsAdapter extends BaseAdapter {
 
 
     public NewsAdapter(Context context,ArrayList<NewsItem> newsList) {
-        this.newsList = newsList;
+        this.mNewsList = newsList;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public int getCount() {
-        return newsList.size();
+        return mNewsList.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return newsList.get(i);
+        return mNewsList.get(i);
     }
 
     @Override
@@ -39,10 +40,20 @@ public class NewsAdapter extends BaseAdapter {
     public View getView(int i, View convertView, ViewGroup parent) {
         View v = mInflater.inflate(R.layout.simple_list_item_1,null);
         TextView title = (TextView) v.findViewById(R.id.title);
-//        ImageView image = (ImageView) v.findViewById(R.id.image);
+        ImageView image = (ImageView) v.findViewById(R.id.image);
 
         title.setText(newsList.get(i).getTitle());
-//        image.setImageResource(newsList.get(i).getImageId());
+        image.setImageResource(newsList.get(i).getImageId());
         return v;
+    }
+
+    public void addNewsItems(ArrayList<NewsItem> newsList) {
+        mNewsList.addAll(newsList);
+        this.notifyDataSetChanged();
+    }
+
+    public void addBefore(ArrayList<NewsItem> newsList) {
+        mNewsList.addAll(0,newsList);
+        this.notifyDataSetChanged();
     }
 }

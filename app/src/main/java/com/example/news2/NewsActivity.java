@@ -23,7 +23,7 @@ public class NewsActivity extends Activity {
         title.setText(mNews.getTitle());
 //        image.setImageResource(mNews.getImageId());
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab_share);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
