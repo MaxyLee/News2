@@ -39,10 +39,10 @@ public class NewsAdapter extends BaseAdapter {
     public View getView(int i, View convertView, ViewGroup parent) {
         View v = mInflater.inflate(R.layout.simple_list_item_1,null);
         TextView title = (TextView) v.findViewById(R.id.title);
-        ImageView image = (ImageView) v.findViewById(R.id.image);
+//        ImageView image = (ImageView) v.findViewById(R.id.image);
 
         title.setText(newsList.get(i).getTitle());
-        image.setImageResource(newsList.get(i).getImageId());
+//        image.setImageResource(newsList.get(i).getImageId());
         return v;
     }
 }

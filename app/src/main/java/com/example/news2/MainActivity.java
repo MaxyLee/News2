@@ -2,11 +2,14 @@ package com.example.news2;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.TypedArray;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -24,6 +27,10 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -39,13 +46,28 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import com.google.gson.*;
+
+import pl.com.salsoft.sqlitestudioremote.SQLiteStudioService;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int numOfCategories = 11;
     private static final String[] categories = {"Recommend", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
+    private static final String[] categoriesZW = {"", "娱乐", "军事", "教育", "文化", "健康", "财经", "体育", "汽车", "科技", "社会"};
 
     private ViewPager vp;
     private PagerTabStrip pagerTabStrip;
@@ -59,11 +81,25 @@ public class MainActivity extends AppCompatActivity
     private int[] listviewIds = new int[numOfCategories];
     private boolean[] selected = new boolean[numOfCategories];
     private String[] titles = new String[numOfCategories];
+    private MyDatabaseHelper dbHelper;
+    private ArrayList<News> recommend = new ArrayList<>();
+    private ArrayList<News> entertainment = new ArrayList<>();
+    private ArrayList<News> military = new ArrayList<>();
+    private ArrayList<News> education = new ArrayList<>();
+    private ArrayList<News> culture = new ArrayList<>();
+    private ArrayList<News> healthy = new ArrayList<>();
+    private ArrayList<News> finance = new ArrayList<>();
+    private ArrayList<News> sports = new ArrayList<>();
+    private ArrayList<News> cars = new ArrayList<>();
+    private ArrayList<News> technology = new ArrayList<>();
+    private ArrayList<News> society = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SQLiteStudioService.instance().start(this);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -73,6 +109,18 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+        dbHelper = new MyDatabaseHelper(this, "newsDB.db", null, 1);
+        loadNews();
+
+//        for(int j = 0; j < recommend.size(); j++){
+//            Log.e("************", recommend.get(j).getTitle());
+//        }
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                addDataToDb();
+//            }
+//        }).start();
 
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
@@ -86,6 +134,174 @@ public class MainActivity extends AppCompatActivity
             mListViews[i].setAdapter(mNewsAdapters[i]);
         }
 
+    }
+
+    private void loadNews(){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor cursor = db.query("recommend", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                recommend.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        cursor = db.query("cars", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                cars.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        cursor = db.query("entertainment", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                entertainment.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        cursor = db.query("military", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                military.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        cursor = db.query("education", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                education.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        cursor = db.query("culture", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                culture.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        cursor = db.query("healthy", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                healthy.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        cursor = db.query("finance", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                finance.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        cursor = db.query("sports", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                sports.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        cursor = db.query("technology", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                technology.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        cursor = db.query("society", null, null, null, null, null, null);
+        if(cursor.moveToFirst()){
+            do{
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                society.add(temp);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+    }
+
+    private void addDataToDb(){
+        String jsonText = result("100", "", "2019-09-01", "", "科技");
+        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+            ContentValues values = new ContentValues();
+            JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
+            JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
+            for (int i = 0; i < jsonObjects.size(); i++) {
+                JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
+                String str = jsonObject3.toString();
+                values.put("newsJson", str);
+                db.insert("technology", null, values);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        Log.e("****************", "Done!");
+    }
+
+    public String httpRequest(String requestUrl, Map params) {
+        StringBuffer buffer = new StringBuffer();
+        try{
+            URL url = new URL(requestUrl+"?"+urlEncode(params));
+            HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();
+            httpUrlConn.setDoInput(true);
+            httpUrlConn.setRequestMethod("GET");
+            httpUrlConn.connect();
+            InputStream inputStream = httpUrlConn.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String str = null;
+            while((str = bufferedReader.readLine()) != null){
+                buffer.append(str);
+            }
+            bufferedReader.close();
+            inputStreamReader.close();
+            inputStream.close();
+            inputStream = null;
+            httpUrlConn.disconnect();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return buffer.toString();
+    }
+    public String result(String size, String startDate, String endDate, String words, String categories){
+        String requestUrl = "https://api2.newsminer.net/svc/news/queryNewsList";
+        Map params = new LinkedHashMap();
+        params.put("size", size);
+        params.put("startDate", startDate);
+        params.put("endDate", endDate);
+        params.put("words", words);
+        params.put("categories", categories);
+        String str = httpRequest(requestUrl, params);
+        return str;
+    }
+    public String urlEncode(Map<String, Object> data) {
+        StringBuilder sb = new StringBuilder();
+        for(Map.Entry i : data.entrySet()){
+            sb.append(i.getKey()).append("=").append(URLEncoder.encode((String) i.getValue())).append("&");
+        }
+        sb.delete(sb.length()-1, sb.length());
+        return sb.toString();
     }
 
     private void initView() {
@@ -113,13 +329,15 @@ public class MainActivity extends AppCompatActivity
         news.add(new NewsItem("news11",R.mipmap.ic_launcher));
 
 
+
+
         for(int i=0;i<layout_array.length();i++){
             mListViews[i] = (ListView) views.get(i).findViewById(listviewIds[i]);
             mListViews[i].setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Intent intent = new Intent(MainActivity.this,NewsActivity.class);
-                    intent.putExtra("news",news.get(i));
+                    intent.putExtra("news",recommend.get(i));
                     startActivity(intent);
                 }
             });

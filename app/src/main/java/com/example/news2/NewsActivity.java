@@ -15,13 +15,13 @@ public class NewsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_news);
-        NewsItem mNews = (NewsItem) getIntent().getSerializableExtra("news");
+        News mNews = (News) getIntent().getSerializableExtra("news");
 
         TextView title = findViewById(R.id.nTitle);
         ImageView image = findViewById(R.id.nImage);
 
         title.setText(mNews.getTitle());
-        image.setImageResource(mNews.getImageId());
+//        image.setImageResource(mNews.getImageId());
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
