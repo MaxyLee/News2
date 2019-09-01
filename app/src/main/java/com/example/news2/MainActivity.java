@@ -13,7 +13,10 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -35,6 +38,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.view.Menu;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity
     private PagerTabStrip pagerTabStrip;
     private MyAdapter mAdpter = new MyAdapter();
     private AlertDialog.Builder mBuilder;
+    private NewsAdapter[] mNewsAdapters = new NewsAdapter[numOfCategories];
     private ArrayList<View> views = new ArrayList<>();
     private View[] mViews = new View[numOfCategories];
     private ListView[] mListViews = new ListView[numOfCategories];
@@ -59,6 +64,10 @@ public class MainActivity extends AppCompatActivity
     private int[] listviewIds = new int[numOfCategories];
     private boolean[] selected = new boolean[numOfCategories];
     private String[] titles = new String[numOfCategories];
+    public Handler mHandler;
+    public View ftView;
+    public boolean isLoading = false;
+    public int currentId = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,13 +83,16 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
+        LayoutInflater li = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ftView = li.inflate(R.layout.footer_view,null);
+        mHandler = new MyHandler();
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
         initView();
         vp.setAdapter(mAdpter);
         pagerTabStrip.setTabIndicatorColor(0xffc17b41);
         pagerTabStrip.setTextColor(0xffc17b41);
-        NewsAdapter[] mNewsAdapters = new NewsAdapter[numOfCategories];
+
         for(int i=0;i<numOfCategories;i++){
             mNewsAdapters[i] = new NewsAdapter(MainActivity.this,news);
             mListViews[i].setAdapter(mNewsAdapters[i]);
@@ -99,6 +111,7 @@ public class MainActivity extends AppCompatActivity
             mViews[i] = getLayoutInflater().inflate(layoutIds[i],null);
             views.add(mViews[i]);
         }
+
 
         news.add(new NewsItem("news1",R.mipmap.ic_launcher));
         news.add(new NewsItem("news2",R.mipmap.ic_launcher));
@@ -124,6 +137,22 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+
+        mListViews[0].setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+                if(absListView.getLastVisiblePosition()==i2-1 && mListViews[0].getCount()>=10 && isLoading==false){
+                    isLoading = true;
+                    Thread thread = new ThreadGetData();
+                    thread.start();
+                }
+            }
+        });
     }
 
     @Override
@@ -255,6 +284,48 @@ public class MainActivity extends AppCompatActivity
         public CharSequence getPageTitle(int position) {
             return titles[position];
         }
+    }
 
+    class MyHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);//may has bug there
+            switch (msg.what){
+                case 0:
+                    mListViews[0].addFooterView(ftView);
+                    break;
+                case 1:
+                     mNewsAdapters[0].addNewsItems((ArrayList<NewsItem>)msg.obj);
+                     mListViews[0].removeFooterView(ftView);
+                     isLoading = false;
+                    break;
+                default:
+                    break;
+
+            }
+        }
+    }
+
+    private ArrayList<NewsItem> getMoreData() {
+        ArrayList<NewsItem> lst = new ArrayList<>();
+        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
+        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
+        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
+        return lst;
+    }
+
+    class ThreadGetData extends Thread {
+        @Override
+        public void run() {
+            mHandler.sendEmptyMessage(0);
+            ArrayList<NewsItem> get = getMoreData();
+            try{
+                sleep(1000);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+            Message msg = mHandler.obtainMessage(1,get);
+            mHandler.sendMessage(msg);
+        }
     }
 }
