@@ -94,7 +94,6 @@ public class MyListView extends ListView implements AbsListView.OnScrollListener
         this.firstVisible = i;
         this.lastVisible = i + i1;
         this.totalItemsCount = i2;
-        Log.d("fuck1",i2+":"+absListView.getLastVisiblePosition());
         if(i2!=0 && absListView.getLastVisiblePosition()==i2-1  && isLoading==false) {
             isLoading = true;
             this.addFooterView(ftView);

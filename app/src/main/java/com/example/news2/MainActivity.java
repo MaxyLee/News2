@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity
     private int[] listviewIds = new int[numOfCategories];
     private boolean[] selected = new boolean[numOfCategories];
     private String[] titles = new String[numOfCategories];
-    public View ftView,hdView;
     public int currentId = 11;
 
     @Override
@@ -73,7 +72,9 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mListViews[0].smoothScrollToPosition(mListViews[0].getCount());
+                int i = vp.getCurrentItem();
+                Log.d("mmm",""+i);
+//                mListViews[0].smoothScrollToPosition(mListViews[0].getCount());
             }
         });
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -82,18 +83,12 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        LayoutInflater li = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ftView = li.inflate(R.layout.footer_view,null);
-        hdView = li.inflate(R.layout.header_view,null);
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
         init();
         vp.setAdapter(mAdpter);
         pagerTabStrip.setTabIndicatorColor(0xffc17b41);
         pagerTabStrip.setTextColor(0xffc17b41);
-
-
-
     }
 
     private void init() {
@@ -182,11 +177,12 @@ public class MainActivity extends AppCompatActivity
             changeCategory();
         } else if (id == R.id.nav_search) {
             search();
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
         }
+//        else if (id == R.id.nav_share) {
+//
+//        } else if (id == R.id.nav_send) {
+//
+//        }
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -241,24 +237,26 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void PullLoad() {
+        final int currentView = vp.getCurrentItem();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 ArrayList<NewsItem> get = refreshData();
-                mNewsAdapters[0].addBefore(get);
-                mListViews[0].loadComplete();
+                mNewsAdapters[currentView].addBefore(get);
+                mListViews[currentView].loadComplete();
             }
         },1000);
     }
 
     @Override
     public void onLoad() {
+        final int currentView = vp.getCurrentItem();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 ArrayList<NewsItem> get = loadData();
-                mNewsAdapters[0].addNewsItems(get);
-                mListViews[0].loadComplete();
+                mNewsAdapters[currentView].addNewsItems(get);
+                mListViews[currentView].loadComplete();
             }
         },1000);
     }
