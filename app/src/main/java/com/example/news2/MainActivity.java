@@ -71,8 +71,8 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<View> views = new ArrayList<>();
     private View[] mViews = new View[numOfCategories];
     private MyListView[] mListViews = new MyListView[numOfCategories];
-//    private ArrayList<News> news = new ArrayList<>();
     private ArrayList<News> staredNews = new ArrayList<>();
+    private ArrayList<News> historyNews = new ArrayList<>();
     private int[] layoutIds = new int[numOfCategories];
     private int[] listviewIds = new int[numOfCategories];
     private boolean[] selected = new boolean[numOfCategories];
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_stared) {
             Stared();
         } else if (id == R.id.nav_history) {
-
+            History();
         }
 
 
@@ -269,7 +269,17 @@ public class MainActivity extends AppCompatActivity
         int cnt = staredNews.size();
         intent.putExtra("count",cnt);
         for(int i=0;i<cnt;i++){
-            intent.putExtra("news"+i,staredNews.get(i));
+            intent.putExtra("starednews"+i,staredNews.get(i));
+        }
+        startActivity(intent);
+    }
+
+    private void History() {
+        Intent intent = new Intent(MainActivity.this,HistoryActivity.class);
+        int cnt = historyNews.size();
+        intent.putExtra("count",cnt);
+        for(int i=0;i<cnt;i++){
+            intent.putExtra("historynews"+i,historyNews.get(i));
         }
         startActivity(intent);
     }

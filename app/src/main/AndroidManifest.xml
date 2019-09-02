@@ -30,6 +30,8 @@
         </activity>
         <activity android:name=".StaredActivity">
         </activity>
+        <activity android:name=".HistoryActivity">
+        </activity>
     </application>
 
 </manifest>
