@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final int numOfCategories = 11;
     private static final String[] categories = {"Recommend", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
+    private static final String[] categoriesDB = {"recommend", "entertainment", "military", "education", "culture", "healthy", "finance", "sports", "cars", "technology", "society"};
     private static final String[] categoriesCN = {"", "娱乐", "军事", "教育", "文化", "健康", "财经", "体育", "汽车", "科技", "社会"};
 
     private ViewPager vp;
@@ -116,6 +117,14 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         dbHelper = new MyDatabaseHelper(this, "newsDB.db", null, 1);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                addDataToDb(0);
+            }
+        }).start();
+
         loadNews();
 
         vp = findViewById(R.id.vp);
@@ -463,8 +472,9 @@ public class MainActivity extends AppCompatActivity
         cursor.close();
     }
 
-    private void addDataToDb() {
-        String jsonText = result("100", "", "2019-09-01", "", "科技");
+    private void addDataToDb(int number) {
+        String tempCategories = categoriesCN[number];
+        String jsonText = result("100", "", "2019-09-01", "", tempCategories);
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
             ContentValues values = new ContentValues();
             JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
@@ -473,7 +483,7 @@ public class MainActivity extends AppCompatActivity
                 JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
                 String str = jsonObject3.toString();
                 values.put("newsJson", str);
-                db.insert("technology", null, values);
+                db.insert(categoriesDB[number], null, values);
             }
         } catch (Exception e) {
             e.printStackTrace();
