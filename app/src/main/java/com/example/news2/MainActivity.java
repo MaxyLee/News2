@@ -384,7 +384,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 String tempCategoriesCN = categoriesCN[vp.getCurrentItem()];
-                LocalDate date = LocalDate.now();
                 lastestNews = result("100", startDate, df.format(time), "", tempCategoriesCN);
             }
         });

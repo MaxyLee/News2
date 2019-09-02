@@ -2,6 +2,8 @@ package com.example.news2;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,8 +14,26 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TimeZone;
 
 public class SearchActivity extends Activity {
 
@@ -23,12 +43,16 @@ public class SearchActivity extends Activity {
     private ListView mListView;
     private NewsAdapter mNewsAdapter;
     private ArrayList<News> mNews = new ArrayList<>();
+    private String searchNews;
+    private Date time = new Date();
+    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_search);
 
+        df.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
         initView();
         initData();
         setListener();
@@ -108,8 +132,84 @@ public class SearchActivity extends Activity {
         }
     }
 
-    private ArrayList<News> Search(String query) {
+    private ArrayList<News> Search(final String query) {
+        Log.e("****************", query);
         ArrayList<News> lst = new ArrayList<>();
+        Thread search;
+        search = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                searchNews = result("10", "", df.format(time), query, "");
+            }
+        });
+        search.start();
+        try{
+            search.join();
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }
+
+        JsonObject jsonObject = (JsonObject) new JsonParser().parse(searchNews);
+        JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
+        for(int i = 0; i < jsonObjects.size(); i++){
+            News temp = new Gson().fromJson(jsonObjects.get(i).toString(), News.class);
+            temp.setImages();
+            lst.add(temp);
+        }
+
+        for(int j = 0; j < lst.size(); j++){
+            Log.e("**********", lst.get(j).getTitle());
+        }
+
         return lst;
+    }
+
+    public String httpRequest(String requestUrl, Map params) {
+        StringBuffer buffer = new StringBuffer();
+        try {
+            URL url = new URL(requestUrl + "?" + urlEncode(params));
+            HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();
+            httpUrlConn.setDoInput(true);
+            httpUrlConn.setRequestMethod("GET");
+            httpUrlConn.connect();
+            InputStream inputStream = httpUrlConn.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String str = null;
+            while ((str = bufferedReader.readLine()) != null) {
+                buffer.append(str);
+            }
+            bufferedReader.close();
+            inputStreamReader.close();
+            inputStream.close();
+            inputStream = null;
+            httpUrlConn.disconnect();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return buffer.toString();
+    }
+
+    public String result(String size, String startDate, String endDate, String words, String categories) {
+        String requestUrl = "https://api2.newsminer.net/svc/news/queryNewsList";
+        Map params = new LinkedHashMap();
+        params.put("size", size);
+        params.put("startDate", startDate);
+        params.put("endDate", endDate);
+        params.put("words", words);
+        params.put("categories", categories);
+        String str = httpRequest(requestUrl, params);
+        return str;
+    }
+
+    public String urlEncode(Map<String, Object> data) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry i : data.entrySet()) {
+            sb.append(i.getKey()).append("=").append(URLEncoder.encode((String) i.getValue())).append("&");
+        }
+        sb.delete(sb.length() - 1, sb.length());
+        return sb.toString();
     }
 }
