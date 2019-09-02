@@ -78,17 +78,7 @@ public class MainActivity extends AppCompatActivity
     private boolean[] selected = new boolean[numOfCategories];
     private String[] titles = new String[numOfCategories];
     private MyDatabaseHelper dbHelper;
-    private ArrayList<News> recommend = new ArrayList<>();
-    private ArrayList<News> entertainment = new ArrayList<>();
-    private ArrayList<News> military = new ArrayList<>();
-    private ArrayList<News> education = new ArrayList<>();
-    private ArrayList<News> culture = new ArrayList<>();
-    private ArrayList<News> healthy = new ArrayList<>();
-    private ArrayList<News> finance = new ArrayList<>();
-    private ArrayList<News> sports = new ArrayList<>();
-    private ArrayList<News> cars = new ArrayList<>();
-    private ArrayList<News> technology = new ArrayList<>();
-    private ArrayList<News> society = new ArrayList<>();
+    private ArrayList<ArrayList<News>> total = new ArrayList<>();
     private int currentId = 11;
 
     @Override
@@ -371,105 +361,19 @@ public class MainActivity extends AppCompatActivity
 
     private void loadNews() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor cursor = db.query("recommend", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                recommend.add(temp);
-            } while (cursor.moveToNext());
+        for(int i = 0; i < 11; i++){
+            ArrayList<News> tempNews = new ArrayList<>();
+            Cursor cursor = db.query(categoriesDB[i], null, null, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                do {
+                    String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                    News temp = new Gson().fromJson(jsonStr, News.class);
+                    tempNews.add(temp);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            total.add(tempNews);
         }
-        cursor.close();
-        cursor = db.query("cars", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                cars.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        cursor = db.query("entertainment", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                entertainment.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        cursor = db.query("military", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                military.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        cursor = db.query("education", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                education.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        cursor = db.query("culture", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                culture.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        cursor = db.query("healthy", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                healthy.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        cursor = db.query("finance", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                finance.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        cursor = db.query("sports", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                sports.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        cursor = db.query("technology", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                technology.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        cursor = db.query("society", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                society.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
     }
 
     private void addDataToDb(int number) {
