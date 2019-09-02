@@ -50,8 +50,13 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import pl.com.salsoft.sqlitestudioremote.SQLiteStudioService;
 
@@ -62,6 +67,7 @@ public class MainActivity extends AppCompatActivity
     private static final String[] categories = {"Recommend", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
     private static final String[] categoriesDB = {"recommend", "entertainment", "military", "education", "culture", "healthy", "finance", "sports", "cars", "technology", "society"};
     private static final String[] categoriesCN = {"", "娱乐", "军事", "教育", "文化", "健康", "财经", "体育", "汽车", "科技", "社会"};
+    private static Integer[] index = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
 
     private ViewPager vp;
     private PagerTabStrip pagerTabStrip;
@@ -71,6 +77,7 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<View> views = new ArrayList<>();
     private View[] mViews = new View[numOfCategories];
     private MyListView[] mListViews = new MyListView[numOfCategories];
+    private ArrayList<News> news = new ArrayList<>();
     private ArrayList<News> staredNews = new ArrayList<>();
     private ArrayList<News> historyNews = new ArrayList<>();
     private int[] layoutIds = new int[numOfCategories];
@@ -79,7 +86,12 @@ public class MainActivity extends AppCompatActivity
     private String[] titles = new String[numOfCategories];
     private MyDatabaseHelper dbHelper;
     private ArrayList<ArrayList<News>> total = new ArrayList<>();
-//    private int currentId = 11;
+    private int currentId = 11;
+    private String lastestNews;
+    private SQLiteDatabase db;
+    private Date time = new Date();
+    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,16 +118,20 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
+        df.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+
         dbHelper = new MyDatabaseHelper(this, "newsDB.db", null, 1);
+        db = dbHelper.getWritableDatabase();
+        //删除数据库中的记录
+        //for(int j = 0; j < 11; j++)
+        //    deleteDB(j);
+        //删除数据库
+        //dbHelper.deleteDatabase(this);
+        //判断数据库是否为空，若为空，则加载数据
+        isEmpty();
 
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                addDataToDb(0);
-//            }
-//        }).start();
 
-        loadNews();
+        firstLoadNews();
 
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
@@ -156,13 +172,6 @@ public class MainActivity extends AppCompatActivity
             mNewsAdapters[i] = new NewsAdapter(MainActivity.this,total.get(i));
             mListViews[i].setAdapter(mNewsAdapters[i]);
         }
-        int cnt = 0;
-        for(int i=0;i<total.get(0).size();i++){
-            if(total.get(0).get(i).getImages()==null)
-                cnt++;
-
-        }
-        Log.d("whatttttttttttfk", String.valueOf(cnt));
     }
 
     @Override
@@ -345,43 +354,81 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<News> loadData() {
         ArrayList<News> lst = new ArrayList<>();
-//        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
-//        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
-//        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
+        Cursor cursor = db.query(true, categoriesDB[vp.getCurrentItem()], null, null, null, null, null, "publishTime desc", index[vp.getCurrentItem()].toString()+",10" );
+        if (cursor.moveToFirst()) {
+            do {
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                temp.setImages();
+                lst.add(temp);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        index[vp.getCurrentItem()] += 10;
         return lst;
     }
 
 
     private ArrayList<News> refreshData() {
         ArrayList<News> lst = new ArrayList<>();
-        String tempCategories = categoriesCN[vp.getCurrentItem()];
-        LocalDate date = LocalDate.now();
-        String jsonText = result("10", "", date.toString(), "", tempCategories);
-        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            ContentValues values = new ContentValues();
-            JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
-            JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
-            for (int i = 0; i < jsonObjects.size(); i++) {
-                JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
-                String str = jsonObject3.toString();
-                News temp = new Gson().fromJson(str, News.class);
-                lst.add(temp);
-                values.put("newsJson", str);
-                db.insert(tempCategories, null, values);
+        String tempCategories = categoriesDB[vp.getCurrentItem()];
+        lastestNews = "";
+        Cursor cursor = db.query(tempCategories, new String[]{"publishTime"}, null, null, null, null, "publishTime desc", "1" );
+        cursor.moveToFirst();
+        final String startDate = cursor.getString(cursor.getColumnIndex("publishTime"));
+        Log.e("***********", startDate);
+        Log.e("***********", df.format(time));
+        cursor.close();
+        Thread refresh;
+        refresh = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String tempCategoriesCN = categoriesCN[vp.getCurrentItem()];
+                LocalDate date = LocalDate.now();
+                lastestNews = result("100", startDate, df.format(time), "", tempCategoriesCN);
             }
-        } catch (Exception e) {
+        });
+        refresh.start();
+        try{
+            refresh.join();
+        }catch(InterruptedException e){
             e.printStackTrace();
         }
-        Log.e("****************", "Done!");
-
+        //先添加到数据库中
+        ContentValues values = new ContentValues();
+        JsonObject jsonObject = (JsonObject) new JsonParser().parse(lastestNews);
+        JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
+        for (int i = 0; i < jsonObjects.size(); i++) {
+            JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
+            String publishTime = jsonObject3.get("publishTime").getAsString();
+            String str = jsonObject3.toString();
+            cursor = db.query(categoriesDB[vp.getCurrentItem()], new String[]{"newsJson"}, "newsJson = ?", new String[]{str}, null, null, null);
+            if(cursor.getCount() == 0){
+                values.put("newsJson", str);
+                values.put("publishTime", publishTime);
+                db.insert(tempCategories, null, values);
+            }
+            cursor.close();
+        }
+        //从数据库中读取最新的10条
+        index[vp.getCurrentItem()] = 10;
+        cursor = db.query(true, categoriesDB[vp.getCurrentItem()], null, null, null, null, null, "publishTime desc", "10" );
+        if (cursor.moveToFirst()) {
+            do {
+                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+                News temp = new Gson().fromJson(jsonStr, News.class);
+                temp.setImages();
+                lst.add(temp);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
         return lst;
     }
 
-    private void loadNews() {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    private void firstLoadNews() {
         for(int i = 0; i < 11; i++){
             ArrayList<News> tempNews = new ArrayList<>();
-            Cursor cursor = db.query(categoriesDB[i], null, null, null, null, null, null);
+            Cursor cursor = db.query(true, categoriesDB[i], null, null, null, null, null, "publishTime desc", "10" );
             if (cursor.moveToFirst()) {
                 do {
                     String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
@@ -395,21 +442,45 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void isEmpty(){
+        Thread empty;
+        empty = new Thread(new Runnable() {
+            public void run(){
+                for(int i = 0; i< 11;i++) {
+                    Cursor cursor = db.query(categoriesDB[i], null, null, null, null, null, null);
+                    int amount = cursor.getCount();
+                    cursor.close();
+                    if (amount == 0) {
+                        addDataToDb(i);
+                    }
+                }
+            }
+        });
+        empty.start();
+        try{
+            empty.join();
+        }catch(InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteDB(int index){
+        db.delete(categoriesDB[index], null, null);
+    }
+
     private void addDataToDb(int number) {
         String tempCategories = categoriesCN[number];
-        String jsonText = result("100", "", "2019-09-01", "", tempCategories);
-        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            ContentValues values = new ContentValues();
-            JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
-            JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
-            for (int i = 0; i < jsonObjects.size(); i++) {
-                JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
-                String str = jsonObject3.toString();
-                values.put("newsJson", str);
-                db.insert(categoriesDB[number], null, values);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        String jsonText = result("100", "", df.format(time), "", tempCategories);
+        ContentValues values = new ContentValues();
+        JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
+        JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
+        for (int i = 0; i < jsonObjects.size(); i++) {
+            JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
+            String publishTime = jsonObject3.get("publishTime").getAsString();
+            String str = jsonObject3.toString();
+            values.put("newsJson", str);
+            values.put("publishTime", publishTime);
+            db.insert(categoriesDB[number], null, values);
         }
         Log.e("****************", "Done!");
     }

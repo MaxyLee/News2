@@ -52,7 +52,7 @@ public class NewsAdapter extends BaseAdapter {
 
         time.setText(mNewsList.get(i).getPublishTime());
         title.setText(mNewsList.get(i).getTitle());
-        text.setText(mNewsList.get(i).getContent().replaceAll(" ","").substring(0,60));
+        text.setText(mNewsList.get(i).getContent().replaceAll(" ",""));
         image.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         if(mNewsList.get(i).getImages()!=null){
