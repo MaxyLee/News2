@@ -131,7 +131,6 @@ public class MainActivity extends AppCompatActivity
         //判断数据库是否为空，若为空，则加载数据
         isEmpty();
 
-
         firstLoadNews();
 
         vp = findViewById(R.id.vp);
@@ -413,22 +412,26 @@ public class MainActivity extends AppCompatActivity
             if(cursor.getCount() == 0){
                 values.put("newsJson", str);
                 values.put("publishTime", publishTime);
+                News temp = new Gson().fromJson(str, News.class);
+                temp.setImages();
+                lst.add(temp);
                 db.insert(tempCategories, null, values);
             }
             cursor.close();
         }
         //从数据库中读取最新的10条
-        index[vp.getCurrentItem()] = 10;
-        cursor = db.query(true, categoriesDB[vp.getCurrentItem()], null, null, null, null, null, "publishTime desc", "10" );
-        if (cursor.moveToFirst()) {
-            do {
-                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-                News temp = new Gson().fromJson(jsonStr, News.class);
-                temp.setImages();
-                lst.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
+        index[vp.getCurrentItem()] = 10 + lst.size();
+
+//        cursor = db.query(true, categoriesDB[vp.getCurrentItem()], null, null, null, null, null, "publishTime desc", "10" );
+//        if (cursor.moveToFirst()) {
+//            do {
+//                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
+//                News temp = new Gson().fromJson(jsonStr, News.class);
+//                temp.setImages();
+//                lst.add(temp);
+//            } while (cursor.moveToNext());
+//        }
+//        cursor.close();
         return lst;
     }
 

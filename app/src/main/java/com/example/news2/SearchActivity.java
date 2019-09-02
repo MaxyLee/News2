@@ -140,7 +140,7 @@ public class SearchActivity extends Activity {
         search = new Thread(new Runnable() {
             @Override
             public void run() {
-                searchNews = result("10", "", df.format(time), query, "");
+                searchNews = result("50", "", df.format(time), query, "");
             }
         });
         search.start();
@@ -157,11 +157,6 @@ public class SearchActivity extends Activity {
             temp.setImages();
             lst.add(temp);
         }
-
-        for(int j = 0; j < lst.size(); j++){
-            Log.e("**********", lst.get(j).getTitle());
-        }
-
         return lst;
     }
 
