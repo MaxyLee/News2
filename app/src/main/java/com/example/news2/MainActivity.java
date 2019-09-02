@@ -58,6 +58,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,10 +68,11 @@ import com.google.gson.*;
 import pl.com.salsoft.sqlitestudioremote.SQLiteStudioService;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,MyListView.LoadListener {
 
     private static final int numOfCategories = 11;
     private static final String[] categories = {"Recommend", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
+    private static final String[] categoriesCN = {"", "娱乐", "军事", "教育", "文化", "健康", "财经", "体育", "汽车", "科技", "社会"};
 
     private ViewPager vp;
     private PagerTabStrip pagerTabStrip;
@@ -114,7 +116,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 int i = vp.getCurrentItem();
-                Log.d("mmm",""+i);
+                Log.d("mmm", "" + i);
 //                mListViews[0].smoothScrollToPosition(mListViews[0].getCount());
             }
         });
@@ -123,18 +125,9 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+
         dbHelper = new MyDatabaseHelper(this, "newsDB.db", null, 1);
         loadNews();
-
-//        for(int j = 0; j < recommend.size(); j++){
-//            Log.e("************", recommend.get(j).getTitle());
-//        }
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                addDataToDb();
-//            }
-//        }).start();
 
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
@@ -143,117 +136,117 @@ public class MainActivity extends AppCompatActivity
         pagerTabStrip.setTabIndicatorColor(0xffc17b41);
         pagerTabStrip.setTextColor(0xffc17b41);
         NewsAdapter[] mNewsAdapters = new NewsAdapter[numOfCategories];
-        for(int i=0;i<numOfCategories;i++){
-            mNewsAdapters[i] = new NewsAdapter(MainActivity.this,news);
+        for (int i = 0; i < numOfCategories; i++) {
+            mNewsAdapters[i] = new NewsAdapter(MainActivity.this, news);
             mListViews[i].setAdapter(mNewsAdapters[i]);
         }
 
     }
 
-    private void loadNews(){
+    private void loadNews() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Cursor cursor = db.query("recommend", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 recommend.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         cursor = db.query("cars", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 cars.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         cursor = db.query("entertainment", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 entertainment.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         cursor = db.query("military", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 military.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         cursor = db.query("education", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 education.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         cursor = db.query("culture", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 culture.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         cursor = db.query("healthy", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 healthy.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         cursor = db.query("finance", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 finance.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         cursor = db.query("sports", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 sports.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         cursor = db.query("technology", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 technology.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         cursor = db.query("society", null, null, null, null, null, null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
                 society.add(temp);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
     }
 
-    private void addDataToDb(){
+    private void addDataToDb() {
         String jsonText = result("100", "", "2019-09-01", "", "科技");
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
             ContentValues values = new ContentValues();
@@ -265,7 +258,7 @@ public class MainActivity extends AppCompatActivity
                 values.put("newsJson", str);
                 db.insert("technology", null, values);
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         Log.e("****************", "Done!");
@@ -273,8 +266,8 @@ public class MainActivity extends AppCompatActivity
 
     public String httpRequest(String requestUrl, Map params) {
         StringBuffer buffer = new StringBuffer();
-        try{
-            URL url = new URL(requestUrl+"?"+urlEncode(params));
+        try {
+            URL url = new URL(requestUrl + "?" + urlEncode(params));
             HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();
             httpUrlConn.setDoInput(true);
             httpUrlConn.setRequestMethod("GET");
@@ -283,7 +276,7 @@ public class MainActivity extends AppCompatActivity
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String str = null;
-            while((str = bufferedReader.readLine()) != null){
+            while ((str = bufferedReader.readLine()) != null) {
                 buffer.append(str);
             }
             bufferedReader.close();
@@ -298,7 +291,8 @@ public class MainActivity extends AppCompatActivity
         }
         return buffer.toString();
     }
-    public String result(String size, String startDate, String endDate, String words, String categories){
+
+    public String result(String size, String startDate, String endDate, String words, String categories) {
         String requestUrl = "https://api2.newsminer.net/svc/news/queryNewsList";
         Map params = new LinkedHashMap();
         params.put("size", size);
@@ -309,55 +303,56 @@ public class MainActivity extends AppCompatActivity
         String str = httpRequest(requestUrl, params);
         return str;
     }
+
     public String urlEncode(Map<String, Object> data) {
         StringBuilder sb = new StringBuilder();
-        for(Map.Entry i : data.entrySet()){
+        for (Map.Entry i : data.entrySet()) {
             sb.append(i.getKey()).append("=").append(URLEncoder.encode((String) i.getValue())).append("&");
         }
-        sb.delete(sb.length()-1, sb.length());
+        sb.delete(sb.length() - 1, sb.length());
         return sb.toString();
     }
 
     private void init() {
         TypedArray layout_array = this.getResources().obtainTypedArray(R.array.layout_array);
         TypedArray listview_array = this.getResources().obtainTypedArray(R.array.listview_array);
-        for(int i=0;i<numOfCategories;i++){
+        for (int i = 0; i < numOfCategories; i++) {
             selected[i] = true;
             titles[i] = categories[i];
-            layoutIds[i] = layout_array.getResourceId(i,0);
-            listviewIds[i] = listview_array.getResourceId(i,0);
-            mViews[i] = getLayoutInflater().inflate(layoutIds[i],null);
+            layoutIds[i] = layout_array.getResourceId(i, 0);
+            listviewIds[i] = listview_array.getResourceId(i, 0);
+            mViews[i] = getLayoutInflater().inflate(layoutIds[i], null);
             views.add(mViews[i]);
         }
 
 
-        news.add(new NewsItem("news1",R.mipmap.ic_launcher));
-        news.add(new NewsItem("news2",R.mipmap.ic_launcher));
-        news.add(new NewsItem("news3",R.mipmap.ic_launcher));
-        news.add(new NewsItem("news4",R.mipmap.ic_launcher));
-        news.add(new NewsItem("news5",R.mipmap.ic_launcher));
-        news.add(new NewsItem("news6",R.mipmap.ic_launcher));
-        news.add(new NewsItem("news7",R.mipmap.ic_launcher));
-        news.add(new NewsItem("news8",R.mipmap.ic_launcher));
-        news.add(new NewsItem("news9",R.mipmap.ic_launcher));
-        news.add(new NewsItem("news10",R.mipmap.ic_launcher));
-        news.add(new NewsItem("news11",R.mipmap.ic_launcher));
+        news.add(new NewsItem("news1", R.mipmap.ic_launcher));
+        news.add(new NewsItem("news2", R.mipmap.ic_launcher));
+        news.add(new NewsItem("news3", R.mipmap.ic_launcher));
+        news.add(new NewsItem("news4", R.mipmap.ic_launcher));
+        news.add(new NewsItem("news5", R.mipmap.ic_launcher));
+        news.add(new NewsItem("news6", R.mipmap.ic_launcher));
+        news.add(new NewsItem("news7", R.mipmap.ic_launcher));
+        news.add(new NewsItem("news8", R.mipmap.ic_launcher));
+        news.add(new NewsItem("news9", R.mipmap.ic_launcher));
+        news.add(new NewsItem("news10", R.mipmap.ic_launcher));
+        news.add(new NewsItem("news11", R.mipmap.ic_launcher));
 
 
-        for(int i=0;i<layout_array.length();i++){
+        for (int i = 0; i < layout_array.length(); i++) {
             mListViews[i] = (MyListView) views.get(i).findViewById(listviewIds[i]);
             mListViews[i].setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Intent intent = new Intent(MainActivity.this,NewsActivity.class);
-                    intent.putExtra("news",news.get(i));
+                    Intent intent = new Intent(MainActivity.this, NewsActivity.class);
+                    intent.putExtra("news", news.get(i));
                     startActivity(intent);
                 }
             });
             mListViews[i].setInterface(this);
         }
-        for(int i=0;i<numOfCategories;i++){
-            mNewsAdapters[i] = new NewsAdapter(MainActivity.this,news);
+        for (int i = 0; i < numOfCategories; i++) {
+            mNewsAdapters[i] = new NewsAdapter(MainActivity.this, news);
             mListViews[i].setAdapter(mNewsAdapters[i]);
         }
     }
@@ -419,7 +414,7 @@ public class MainActivity extends AppCompatActivity
 
     private void changeCategory() {
         final boolean[] s = new boolean[numOfCategories];
-        for(int i=0;i<numOfCategories;i++)
+        for (int i = 0; i < numOfCategories; i++)
             s[i] = selected[i];
         mBuilder = new AlertDialog.Builder(this);
         mBuilder.setTitle("Category:");
@@ -438,7 +433,7 @@ public class MainActivity extends AppCompatActivity
         mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                for(int j=0;j<numOfCategories;j++)
+                for (int j = 0; j < numOfCategories; j++)
                     selected[j] = s[j];
             }
         });
@@ -448,8 +443,8 @@ public class MainActivity extends AppCompatActivity
     private void updateView() {
         views.clear();
         int cnt = 0;
-        for(int i=0;i<numOfCategories;i++){
-            if(selected[i]){
+        for (int i = 0; i < numOfCategories; i++) {
+            if (selected[i]) {
                 views.add(mViews[i]);
                 titles[cnt++] = categories[i];
             }
@@ -458,7 +453,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void search() {
-        Intent searchIntent = new Intent(MainActivity.this,SearchActivity.class);
+        Intent searchIntent = new Intent(MainActivity.this, SearchActivity.class);
         startActivity(searchIntent);
     }
 
@@ -472,7 +467,7 @@ public class MainActivity extends AppCompatActivity
                 mNewsAdapters[currentView].addBefore(get);
                 mListViews[currentView].loadComplete();
             }
-        },1000);
+        }, 1000);
     }
 
     @Override
@@ -485,7 +480,7 @@ public class MainActivity extends AppCompatActivity
                 mNewsAdapters[currentView].addNewsItems(get);
                 mListViews[currentView].loadComplete();
             }
-        },1000);
+        }, 1000);
     }
 
 
@@ -497,7 +492,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-            return view==object;
+            return view == object;
         }
 
         @Override
@@ -522,17 +517,36 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<NewsItem> loadData() {
         ArrayList<NewsItem> lst = new ArrayList<>();
-        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
-        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
-        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
+        lst.add(new NewsItem("news" + (++currentId), R.mipmap.ic_launcher));
+        lst.add(new NewsItem("news" + (++currentId), R.mipmap.ic_launcher));
+        lst.add(new NewsItem("news" + (++currentId), R.mipmap.ic_launcher));
         return lst;
     }
 
 
+    private ArrayList<News> refreshData() {
+        ArrayList<News> lst = new ArrayList<>();
+        String tempCategories = categoriesCN[vp.getCurrentItem()];
+        LocalDate date = LocalDate.now();
+        String jsonText = result("10", "", date.toString(), "", tempCategories);
+        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+            ContentValues values = new ContentValues();
+            JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
+            JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
+            for (int i = 0; i < jsonObjects.size(); i++) {
+                JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
+                String str = jsonObject3.toString();
+                News temp = new Gson().fromJson(str, News.class);
+                lst.add(temp);
+                values.put("newsJson", str);
+                db.insert(tempCategories, null, values);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.e("****************", "Done!");
 
-    private ArrayList<NewsItem> refreshData() {
-        ArrayList<NewsItem> lst = new ArrayList<>();
-        lst.add(new NewsItem("newsRefreshed",R.mipmap.ic_launcher));
         return lst;
     }
 
+}

@@ -13,7 +13,7 @@ import java.util.List;
 
 public class NewsAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
-    private ArrayList<NewsItem> newsList = new ArrayList<>();
+    private ArrayList<NewsItem> mNewsList = new ArrayList<>();
 
 
     public NewsAdapter(Context context,ArrayList<NewsItem> newsList) {
@@ -42,8 +42,8 @@ public class NewsAdapter extends BaseAdapter {
         TextView title = (TextView) v.findViewById(R.id.title);
         ImageView image = (ImageView) v.findViewById(R.id.image);
 
-        title.setText(newsList.get(i).getTitle());
-        image.setImageResource(newsList.get(i).getImageId());
+        title.setText(mNewsList.get(i).getTitle());
+        image.setImageResource(mNewsList.get(i).getImageId());
         return v;
     }
 
