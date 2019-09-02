@@ -9,7 +9,9 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class HistoryActivity extends Activity {
+import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
+
+public class HistoryActivity extends SwipeBackActivity {
 
     private ArrayList<News> historyNews = new ArrayList<>();
     private NewsAdapter mNewsAdapter;

@@ -13,17 +13,22 @@ import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 public class NewsActivity extends Activity {
+
+    News mNews;
+    TextView title,publisher,time,text;
+    ImageView image;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_news);
-        News mNews = (News) getIntent().getSerializableExtra("news");
+        mNews = (News) getIntent().getSerializableExtra("news");
 
-        TextView title = findViewById(R.id.nTitle);
-        TextView publisher = findViewById(R.id.nPublisher);
-        TextView time = findViewById(R.id.nTime);
-        ImageView image = findViewById(R.id.nImage);
-        TextView text = findViewById(R.id.nNews);
+        title = (TextView) findViewById(R.id.nTitle);
+        publisher = (TextView) findViewById(R.id.nPublisher);
+        time = (TextView) findViewById(R.id.nTime);
+        image = (ImageView) findViewById(R.id.nImage);
+        text = (TextView) findViewById(R.id.nNews);
 
         title.setText(mNews.getTitle());
         publisher.setText(mNews.getPublisher());
@@ -38,7 +43,7 @@ public class NewsActivity extends Activity {
         }
 
 
-        FloatingActionButton fab = findViewById(R.id.fab_share);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_share);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -52,4 +57,9 @@ public class NewsActivity extends Activity {
             }
         });
     }
+
+//    @Override
+//    public void onBackPressed() {
+//        scrollToFinishActivity();//左滑退出activity
+//    }
 }

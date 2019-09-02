@@ -31,4 +31,5 @@ dependencies {
     implementation files('libs/SQLiteStudioRemote.jar')
     implementation files('libs/gson-2.8.5.jar')
     implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'me.imid.swipebacklayout.lib:library:1.0.0'
 }

@@ -1,7 +1,7 @@
 package com.example.news2;
 
-import android.app.ActionBar;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class NewsAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
@@ -48,20 +47,25 @@ public class NewsAdapter extends BaseAdapter {
         TextView title = (TextView) v.findViewById(R.id.title);
         ImageView image = (ImageView) v.findViewById(R.id.image);
         TextView text = v.findViewById(R.id.text);
+        News mNews = mNewsList.get(i);
 
 
-        time.setText(mNewsList.get(i).getPublishTime());
-        title.setText(mNewsList.get(i).getTitle());
-        text.setText(mNewsList.get(i).getContent().replaceAll(" ",""));
+        time.setText(mNews.getPublishTime());
+        title.setText(mNews.getTitle());
+        text.setText(mNews.getContent().replaceAll("\\s",""));
+
         image.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         if(mNewsList.get(i).getImages()!=null){
             try{
-                Log.d("heyyyyyyyyyyy","what's wrong?"+(mNewsList.get(i).getImages()[0]));
+//                Log.d("heyyyyyyyyyyy","what's wrong?"+(mNewsList.get(i).getImages()[0]));
                 Picasso.with(this.context).load(mNewsList.get(i).getImages()[0]).placeholder(R.mipmap.ic_launcher).into(image);
             }catch (Exception e){
                 Log.e("yoooooooooooo","Man?");
             }
+        }
+        if(mNews.getVisited()){
+            text.setTextColor(Color.parseColor("#969696"));
         }
 
         return v;

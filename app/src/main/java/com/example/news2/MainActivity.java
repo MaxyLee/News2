@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity
         //for(int j = 0; j < 11; j++)
         //    deleteDB(j);
         //删除数据库
-        //dbHelper.deleteDatabase(this);
+//        dbHelper.deleteDatabase(this);
         //判断数据库是否为空，若为空，则加载数据
         isEmpty();
 
@@ -162,8 +162,12 @@ public class MainActivity extends AppCompatActivity
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Intent intent = new Intent(MainActivity.this,NewsActivity.class);
                     Log.d("mmmmmmmmmmmmmmaxy",""+i);
-                    intent.putExtra("news",total.get(vp.getCurrentItem()).get(i-1));
+                    News tNews = total.get(vp.getCurrentItem()).get(i-1);
+                    historyNews.add(0,tNews);
+                    tNews.setVisited();
+                    intent.putExtra("news",tNews);
                     startActivity(intent);
+                    mNewsAdapters[vp.getCurrentItem()].notifyDataSetChanged();
                 }
             });
             mListViews[i].setInterface(this);

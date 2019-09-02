@@ -64,6 +64,7 @@ public class SearchActivity extends Activity {
         mDeleteButton=mSearchView.findViewById(R.id.search_close_btn);
         mListView = findViewById(R.id.listview_search);
         mNewsAdapter = new NewsAdapter(this,mNews);
+        mListView.setAdapter(mNewsAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

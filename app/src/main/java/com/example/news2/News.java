@@ -12,6 +12,7 @@ public class News implements Serializable {
     private String publisher;
     private String category;
     private String[] images;
+    private boolean visited = false;
 
     public void setImages() {
         String str = this.image;
@@ -85,5 +86,13 @@ public class News implements Serializable {
 
     public String getContent() {
         return content;
+    }
+
+    public void setVisited() {
+        this.visited = true;
+    }
+
+    public boolean getVisited() {
+        return this.visited;
     }
 }
