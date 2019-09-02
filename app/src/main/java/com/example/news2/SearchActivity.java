@@ -69,7 +69,9 @@ public class SearchActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(SearchActivity.this,NewsActivity.class);
-                intent.putExtra("news",mNews.get(i));
+                News tNews = mNews.get(i);
+                MainActivity.addToHistory(tNews);
+                intent.putExtra("news",tNews);
                 startActivity(intent);
             }
         });

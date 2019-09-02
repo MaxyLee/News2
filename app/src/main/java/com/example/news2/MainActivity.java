@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity
     private MyListView[] mListViews = new MyListView[numOfCategories];
     private ArrayList<News> news = new ArrayList<>();
     private ArrayList<News> staredNews = new ArrayList<>();
-    private ArrayList<News> historyNews = new ArrayList<>();
+    private static ArrayList<News> historyNews = new ArrayList<>();
     private int[] layoutIds = new int[numOfCategories];
     private int[] listviewIds = new int[numOfCategories];
     private boolean[] selected = new boolean[numOfCategories];
@@ -163,8 +163,7 @@ public class MainActivity extends AppCompatActivity
                     Intent intent = new Intent(MainActivity.this,NewsActivity.class);
                     Log.d("mmmmmmmmmmmmmmaxy",""+i);
                     News tNews = total.get(vp.getCurrentItem()).get(i-1);
-                    historyNews.add(0,tNews);
-                    tNews.setVisited();
+                    addToHistory(tNews);
                     intent.putExtra("news",tNews);
                     startActivity(intent);
                     mNewsAdapters[vp.getCurrentItem()].notifyDataSetChanged();
@@ -537,4 +536,8 @@ public class MainActivity extends AppCompatActivity
         return sb.toString();
     }
 
+    public static void addToHistory(News news) {
+        news.setVisited();
+        historyNews.add(0,news);
+    }
 }
