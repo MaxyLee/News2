@@ -7,32 +7,56 @@
     android:background="#d1d1d1">
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="236dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginLeft="4dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="16dp"
-        app:cardBackgroundColor="@color/colorAoi">
+        app:cardBackgroundColor="@color/colorWhite">
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="180dp">
+
+                <ImageView
+                    android:id="@+id/image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="center"
+                    android:src="@mipmap/ic_launcher"
+                    />
+                <TextView
+                    android:id="@+id/time"
+                    android:textColor="@color/colorWhite"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:gravity="left"
+                    android:layout_gravity="top"
+                    android:text="Time???"/>
+                <TextView
+                    android:id="@+id/title"
+                    android:textSize="20sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorWhite"
+                    android:layout_gravity="bottom"
+                    android:padding="6dp"
+                    android:background="#99d1d1d1"
+                    android:gravity="center|left"/>
+            </FrameLayout>
             <TextView
-                android:id="@+id/time"
+                android:id="@+id/text"
+                android:textColor="#e6000000"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="8dp"
-                android:gravity="right"
-                android:text="Time???"/>
-            <ImageView
-                android:id="@+id/image"
-                android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:src="@mipmap/ic_launcher"/>
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"/>
+                android:layout_margin="6dp"
+                />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

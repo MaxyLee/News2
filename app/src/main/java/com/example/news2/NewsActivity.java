@@ -20,10 +20,14 @@ public class NewsActivity extends Activity {
         News mNews = (News) getIntent().getSerializableExtra("news");
 
         TextView title = findViewById(R.id.nTitle);
+        TextView publisher = findViewById(R.id.nPublisher);
+        TextView time = findViewById(R.id.nTime);
         ImageView image = findViewById(R.id.nImage);
         TextView text = findViewById(R.id.nNews);
 
         title.setText(mNews.getTitle());
+        publisher.setText(mNews.getPublisher());
+        time.setText(mNews.getPublishTime());
         text.setText(mNews.getContent());
 //        image.setImageResource(mNews.getImageId());
         try{
@@ -32,6 +36,7 @@ public class NewsActivity extends Activity {
         }catch (Exception e){
             Log.e("yoooooooooooo","Bro?");
         }
+
 
         FloatingActionButton fab = findViewById(R.id.fab_share);
         fab.setOnClickListener(new View.OnClickListener() {

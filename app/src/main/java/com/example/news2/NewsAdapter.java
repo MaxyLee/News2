@@ -1,5 +1,6 @@
 package com.example.news2;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,12 +47,13 @@ public class NewsAdapter extends BaseAdapter {
         TextView time = v.findViewById(R.id.time);
         TextView title = (TextView) v.findViewById(R.id.title);
         ImageView image = (ImageView) v.findViewById(R.id.image);
+        TextView text = v.findViewById(R.id.text);
+
 
         time.setText(mNewsList.get(i).getPublishTime());
         title.setText(mNewsList.get(i).getTitle());
-
-//        Log.d("heyyyyyyyyyyy","what's wrong?"+(mNewsList.get(i).getImages()==null));
-//        Log.d("Brooooooooo", String.valueOf(mNewsList.size()));
+        text.setText(mNewsList.get(i).getContent().replaceAll(" ","").substring(0,60));
+        image.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         if(mNewsList.get(i).getImages()!=null){
             try{
@@ -61,6 +63,7 @@ public class NewsAdapter extends BaseAdapter {
                 Log.e("yoooooooooooo","Man?");
             }
         }
+
         return v;
     }
 
