@@ -1,22 +1,28 @@
 package com.example.news2;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.SearchView;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 public class SearchActivity extends Activity {
 
     private SearchView mSearchView;
     private AutoCompleteTextView mAutoCompleteTextView;//搜索输入框
     private ImageView mDeleteButton;//搜索框中的删除按钮
+    private ListView mListView;
+    private NewsAdapter mNewsAdapter;
+    private ArrayList<News> mNews = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +38,16 @@ public class SearchActivity extends Activity {
         mSearchView=(SearchView) findViewById(R.id.view_search);
         mAutoCompleteTextView=mSearchView.findViewById(R.id.search_src_text);
         mDeleteButton=mSearchView.findViewById(R.id.search_close_btn);
+        mListView = findViewById(R.id.listview_search);
+        mNewsAdapter = new NewsAdapter(this,mNews);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(SearchActivity.this,NewsActivity.class);
+                intent.putExtra("news",mNews.get(i));
+                startActivity(intent);
+            }
+        });
     }
 
     private void initData(){
@@ -58,7 +74,12 @@ public class SearchActivity extends Activity {
             //当点击搜索按钮时触发该方法
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.e("aaa","=====query="+query);
+                ArrayList<News> tmp = Search(query);
+                mNews.clear();
+                if(tmp.size()>0){
+                    mNews.addAll(tmp);
+                }
+                mNewsAdapter.notifyDataSetChanged();
                 return false;
             }
 
@@ -87,4 +108,8 @@ public class SearchActivity extends Activity {
         }
     }
 
+    private ArrayList<News> Search(String query) {
+        ArrayList<News> lst = new ArrayList<>();
+        return lst;
+    }
 }
