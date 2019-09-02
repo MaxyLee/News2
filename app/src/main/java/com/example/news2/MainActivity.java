@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<View> views = new ArrayList<>();
     private View[] mViews = new View[numOfCategories];
     private MyListView[] mListViews = new MyListView[numOfCategories];
-    private ArrayList<News> news = new ArrayList<>();
+//    private ArrayList<News> news = new ArrayList<>();
     private ArrayList<News> staredNews = new ArrayList<>();
     private int[] layoutIds = new int[numOfCategories];
     private int[] listviewIds = new int[numOfCategories];
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity
     private String[] titles = new String[numOfCategories];
     private MyDatabaseHelper dbHelper;
     private ArrayList<ArrayList<News>> total = new ArrayList<>();
-    private int currentId = 11;
+//    private int currentId = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +96,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 int i = vp.getCurrentItem();
-                Log.d("mmm",""+recommend.size());
-//                mListViews[0].smoothScrollToPosition(mListViews[0].getCount());
+                Log.d("mmm",""+total.get(i).size());
+                mListViews[i].smoothScrollToPosition(mListViews[i].getCount());
             }
         });
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -108,12 +108,12 @@ public class MainActivity extends AppCompatActivity
 
         dbHelper = new MyDatabaseHelper(this, "newsDB.db", null, 1);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                addDataToDb(0);
-            }
-        }).start();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                addDataToDb(0);
+//            }
+//        }).start();
 
         loadNews();
 
@@ -145,16 +145,24 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Intent intent = new Intent(MainActivity.this,NewsActivity.class);
-                    intent.putExtra("news",news.get(i));
+                    Log.d("mmmmmmmmmmmmmmaxy",""+i);
+                    intent.putExtra("news",total.get(vp.getCurrentItem()).get(i-1));
                     startActivity(intent);
                 }
             });
             mListViews[i].setInterface(this);
         }
         for(int i=0;i<numOfCategories;i++){
-            mNewsAdapters[i] = new NewsAdapter(MainActivity.this,recommend);//bug here!!!!!!!!!
+            mNewsAdapters[i] = new NewsAdapter(MainActivity.this,total.get(i));
             mListViews[i].setAdapter(mNewsAdapters[i]);
         }
+        int cnt = 0;
+        for(int i=0;i<total.get(0).size();i++){
+            if(total.get(0).get(i).getImages()==null)
+                cnt++;
+
+        }
+        Log.d("whatttttttttttfk", String.valueOf(cnt));
     }
 
     @Override
@@ -368,6 +376,7 @@ public class MainActivity extends AppCompatActivity
                 do {
                     String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                     News temp = new Gson().fromJson(jsonStr, News.class);
+                    temp.setImages();
                     tempNews.add(temp);
                 } while (cursor.moveToNext());
             }
