@@ -1,25 +1,18 @@
 package com.example.news2;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -45,10 +38,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.view.Menu;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -61,9 +51,7 @@ import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import com.google.gson.*;
 
 import pl.com.salsoft.sqlitestudioremote.SQLiteStudioService;
 
@@ -82,7 +70,8 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<View> views = new ArrayList<>();
     private View[] mViews = new View[numOfCategories];
     private MyListView[] mListViews = new MyListView[numOfCategories];
-    private ArrayList<NewsItem> news = new ArrayList<>();
+    private ArrayList<News> news = new ArrayList<>();
+    private ArrayList<News> staredNews = new ArrayList<>();
     private int[] layoutIds = new int[numOfCategories];
     private int[] listviewIds = new int[numOfCategories];
     private boolean[] selected = new boolean[numOfCategories];
@@ -116,7 +105,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 int i = vp.getCurrentItem();
-                Log.d("mmm", "" + i);
+                Log.d("mmm",""+recommend.size());
 //                mListViews[0].smoothScrollToPosition(mListViews[0].getCount());
             }
         });
@@ -132,15 +121,243 @@ public class MainActivity extends AppCompatActivity
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
         init();
+    }
+
+    private void init() {
+        TypedArray layout_array = this.getResources().obtainTypedArray(R.array.layout_array);
+        TypedArray listview_array = this.getResources().obtainTypedArray(R.array.listview_array);
+        for(int i=0;i<numOfCategories;i++){
+            selected[i] = true;
+            titles[i] = categories[i];
+            layoutIds[i] = layout_array.getResourceId(i,0);
+            listviewIds[i] = listview_array.getResourceId(i,0);
+            mViews[i] = getLayoutInflater().inflate(layoutIds[i],null);
+            views.add(mViews[i]);
+        }
+        vp = findViewById(R.id.vp);
+        pagerTabStrip = findViewById(R.id.tap);
         vp.setAdapter(mAdpter);
         pagerTabStrip.setTabIndicatorColor(0xffc17b41);
         pagerTabStrip.setTextColor(0xffc17b41);
-        NewsAdapter[] mNewsAdapters = new NewsAdapter[numOfCategories];
-        for (int i = 0; i < numOfCategories; i++) {
-            mNewsAdapters[i] = new NewsAdapter(MainActivity.this, news);
+
+        for(int i=0;i<layout_array.length();i++){
+            mListViews[i] = (MyListView) views.get(i).findViewById(listviewIds[i]);
+            mListViews[i].setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Intent intent = new Intent(MainActivity.this,NewsActivity.class);
+                    intent.putExtra("news",news.get(i));
+                    startActivity(intent);
+                }
+            });
+            mListViews[i].setInterface(this);
+        }
+        for(int i=0;i<numOfCategories;i++){
+            mNewsAdapters[i] = new NewsAdapter(MainActivity.this,recommend);//bug here!!!!!!!!!
             mListViews[i].setAdapter(mNewsAdapters[i]);
         }
+    }
 
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.search) {
+            search();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_category) {
+            changeCategory();
+        } else if (id == R.id.nav_search) {
+            search();
+        } else if (id == R.id.nav_stared) {
+            Stared();
+        } else if (id == R.id.nav_history) {
+
+        }
+
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private void changeCategory() {
+        final boolean[] s = new boolean[numOfCategories];
+        for(int i=0;i<numOfCategories;i++)
+            s[i] = selected[i];
+        mBuilder = new AlertDialog.Builder(this);
+        mBuilder.setTitle("Category:");
+        mBuilder.setMultiChoiceItems(categories, selected, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+
+            }
+        });
+        mBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                updateView();
+            }
+        });
+        mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                for(int j=0;j<numOfCategories;j++)
+                    selected[j] = s[j];
+            }
+        });
+        mBuilder.show();
+    }
+
+    private void updateView() {
+        views.clear();
+        int cnt = 0;
+        for(int i=0;i<numOfCategories;i++){
+            if(selected[i]){
+                views.add(mViews[i]);
+                titles[cnt++] = categories[i];
+            }
+        }
+        mAdpter.notifyDataSetChanged();
+    }
+
+    private void search() {
+        Intent searchIntent = new Intent(MainActivity.this,SearchActivity.class);
+        startActivity(searchIntent);
+    }
+
+    private void Stared() {
+        Intent intent = new Intent(MainActivity.this,StaredActivity.class);
+        int cnt = staredNews.size();
+        intent.putExtra("count",cnt);
+        for(int i=0;i<cnt;i++){
+            intent.putExtra("news"+i,staredNews.get(i));
+        }
+        startActivity(intent);
+    }
+
+    @Override
+    public void PullLoad() {
+        final int currentView = vp.getCurrentItem();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<News> get = refreshData();
+                mNewsAdapters[currentView].addBefore(get);
+                mListViews[currentView].loadComplete();
+            }
+        },1000);
+    }
+
+    @Override
+    public void onLoad() {
+        final int currentView = vp.getCurrentItem();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<News> get = loadData();
+                mNewsAdapters[currentView].addNewsItems(get);
+                mListViews[currentView].loadComplete();
+            }
+        },1000);
+    }
+
+
+    class MyAdapter extends PagerAdapter {
+        @Override
+        public int getCount() {
+            return views.size();
+        }
+
+        @Override
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+            return view==object;
+        }
+
+        @Override
+        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+            container.removeView(views.get(position));
+        }
+
+        @NonNull
+        @Override
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
+            View v = views.get(position);
+            container.addView(v);
+            return v;
+        }
+
+        @Nullable
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return titles[position];
+        }
+    }
+
+
+    private ArrayList<News> loadData() {
+        ArrayList<News> lst = new ArrayList<>();
+//        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
+//        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
+//        lst.add(new NewsItem("news"+(++currentId),R.mipmap.ic_launcher));
+        return lst;
+    }
+
+
+    private ArrayList<News> refreshData() {
+        ArrayList<News> lst = new ArrayList<>();
+        String tempCategories = categoriesCN[vp.getCurrentItem()];
+        LocalDate date = LocalDate.now();
+        String jsonText = result("10", "", date.toString(), "", tempCategories);
+        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+            ContentValues values = new ContentValues();
+            JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
+            JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
+            for (int i = 0; i < jsonObjects.size(); i++) {
+                JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
+                String str = jsonObject3.toString();
+                News temp = new Gson().fromJson(str, News.class);
+                lst.add(temp);
+                values.put("newsJson", str);
+                db.insert(tempCategories, null, values);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.e("****************", "Done!");
+
+        return lst;
     }
 
     private void loadNews() {
@@ -311,242 +528,6 @@ public class MainActivity extends AppCompatActivity
         }
         sb.delete(sb.length() - 1, sb.length());
         return sb.toString();
-    }
-
-    private void init() {
-        TypedArray layout_array = this.getResources().obtainTypedArray(R.array.layout_array);
-        TypedArray listview_array = this.getResources().obtainTypedArray(R.array.listview_array);
-        for (int i = 0; i < numOfCategories; i++) {
-            selected[i] = true;
-            titles[i] = categories[i];
-            layoutIds[i] = layout_array.getResourceId(i, 0);
-            listviewIds[i] = listview_array.getResourceId(i, 0);
-            mViews[i] = getLayoutInflater().inflate(layoutIds[i], null);
-            views.add(mViews[i]);
-        }
-
-
-        news.add(new NewsItem("news1", R.mipmap.ic_launcher));
-        news.add(new NewsItem("news2", R.mipmap.ic_launcher));
-        news.add(new NewsItem("news3", R.mipmap.ic_launcher));
-        news.add(new NewsItem("news4", R.mipmap.ic_launcher));
-        news.add(new NewsItem("news5", R.mipmap.ic_launcher));
-        news.add(new NewsItem("news6", R.mipmap.ic_launcher));
-        news.add(new NewsItem("news7", R.mipmap.ic_launcher));
-        news.add(new NewsItem("news8", R.mipmap.ic_launcher));
-        news.add(new NewsItem("news9", R.mipmap.ic_launcher));
-        news.add(new NewsItem("news10", R.mipmap.ic_launcher));
-        news.add(new NewsItem("news11", R.mipmap.ic_launcher));
-
-
-        for (int i = 0; i < layout_array.length(); i++) {
-            mListViews[i] = (MyListView) views.get(i).findViewById(listviewIds[i]);
-            mListViews[i].setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Intent intent = new Intent(MainActivity.this, NewsActivity.class);
-                    intent.putExtra("news", news.get(i));
-                    startActivity(intent);
-                }
-            });
-            mListViews[i].setInterface(this);
-        }
-        for (int i = 0; i < numOfCategories; i++) {
-            mNewsAdapters[i] = new NewsAdapter(MainActivity.this, news);
-            mListViews[i].setAdapter(mNewsAdapters[i]);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.search) {
-            search();
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_category) {
-            changeCategory();
-        } else if (id == R.id.nav_search) {
-            search();
-        }
-//        else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
-
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    private void changeCategory() {
-        final boolean[] s = new boolean[numOfCategories];
-        for (int i = 0; i < numOfCategories; i++)
-            s[i] = selected[i];
-        mBuilder = new AlertDialog.Builder(this);
-        mBuilder.setTitle("Category:");
-        mBuilder.setMultiChoiceItems(categories, selected, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-
-            }
-        });
-        mBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                updateView();
-            }
-        });
-        mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                for (int j = 0; j < numOfCategories; j++)
-                    selected[j] = s[j];
-            }
-        });
-        mBuilder.show();
-    }
-
-    private void updateView() {
-        views.clear();
-        int cnt = 0;
-        for (int i = 0; i < numOfCategories; i++) {
-            if (selected[i]) {
-                views.add(mViews[i]);
-                titles[cnt++] = categories[i];
-            }
-        }
-        mAdpter.notifyDataSetChanged();
-    }
-
-    private void search() {
-        Intent searchIntent = new Intent(MainActivity.this, SearchActivity.class);
-        startActivity(searchIntent);
-    }
-
-    @Override
-    public void PullLoad() {
-        final int currentView = vp.getCurrentItem();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ArrayList<NewsItem> get = refreshData();
-                mNewsAdapters[currentView].addBefore(get);
-                mListViews[currentView].loadComplete();
-            }
-        }, 1000);
-    }
-
-    @Override
-    public void onLoad() {
-        final int currentView = vp.getCurrentItem();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ArrayList<NewsItem> get = loadData();
-                mNewsAdapters[currentView].addNewsItems(get);
-                mListViews[currentView].loadComplete();
-            }
-        }, 1000);
-    }
-
-
-    class MyAdapter extends PagerAdapter {
-        @Override
-        public int getCount() {
-            return views.size();
-        }
-
-        @Override
-        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-            return view == object;
-        }
-
-        @Override
-        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-            container.removeView(views.get(position));
-        }
-
-        @NonNull
-        @Override
-        public Object instantiateItem(@NonNull ViewGroup container, int position) {
-            View v = views.get(position);
-            container.addView(v);
-            return v;
-        }
-
-        @Nullable
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return titles[position];
-        }
-    }
-
-    private ArrayList<NewsItem> loadData() {
-        ArrayList<NewsItem> lst = new ArrayList<>();
-        lst.add(new NewsItem("news" + (++currentId), R.mipmap.ic_launcher));
-        lst.add(new NewsItem("news" + (++currentId), R.mipmap.ic_launcher));
-        lst.add(new NewsItem("news" + (++currentId), R.mipmap.ic_launcher));
-        return lst;
-    }
-
-
-    private ArrayList<News> refreshData() {
-        ArrayList<News> lst = new ArrayList<>();
-        String tempCategories = categoriesCN[vp.getCurrentItem()];
-        LocalDate date = LocalDate.now();
-        String jsonText = result("10", "", date.toString(), "", tempCategories);
-        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            ContentValues values = new ContentValues();
-            JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
-            JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
-            for (int i = 0; i < jsonObjects.size(); i++) {
-                JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
-                String str = jsonObject3.toString();
-                News temp = new Gson().fromJson(str, News.class);
-                lst.add(temp);
-                values.put("newsJson", str);
-                db.insert(tempCategories, null, values);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Log.e("****************", "Done!");
-
-        return lst;
     }
 
 }

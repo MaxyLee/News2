@@ -13,10 +13,10 @@ import java.util.List;
 
 public class NewsAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
-    private ArrayList<NewsItem> mNewsList = new ArrayList<>();
+    private ArrayList<News> mNewsList = new ArrayList<>();
 
 
-    public NewsAdapter(Context context,ArrayList<NewsItem> newsList) {
+    public NewsAdapter(Context context,ArrayList<News> newsList) {
         this.mNewsList = newsList;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -43,16 +43,16 @@ public class NewsAdapter extends BaseAdapter {
         ImageView image = (ImageView) v.findViewById(R.id.image);
 
         title.setText(mNewsList.get(i).getTitle());
-        image.setImageResource(mNewsList.get(i).getImageId());
+//        image.setImageResource(mNewsList.get(i).getImageId());
         return v;
     }
 
-    public void addNewsItems(ArrayList<NewsItem> newsList) {
+    public void addNewsItems(ArrayList<News> newsList) {
         mNewsList.addAll(newsList);
         this.notifyDataSetChanged();
     }
 
-    public void addBefore(ArrayList<NewsItem> newsList) {
+    public void addBefore(ArrayList<News> newsList) {
         mNewsList.addAll(0,newsList);
         this.notifyDataSetChanged();
     }

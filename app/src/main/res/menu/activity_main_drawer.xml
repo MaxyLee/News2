@@ -16,6 +16,10 @@
             android:id="@+id/nav_stared"
             android:icon="@drawable/star"
             android:title="@string/menu_star"/>
+        <item
+            android:id="@+id/nav_history"
+            android:icon="@drawable/history"
+            android:title="@string/menu_history"/>
     </group>
 
     <item android:title="Communicate">

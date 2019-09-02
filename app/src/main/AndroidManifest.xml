@@ -28,6 +28,8 @@
         </activity>
         <activity android:name=".SearchActivity">
         </activity>
+        <activity android:name=".StaredActivity">
+        </activity>
     </application>
 
 </manifest>

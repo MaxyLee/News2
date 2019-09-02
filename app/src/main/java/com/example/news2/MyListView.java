@@ -76,11 +76,6 @@ public class MyListView extends ListView implements AbsListView.OnScrollListener
 
     @Override
     public void onScrollStateChanged(AbsListView absListView, int i) {
-//        if(absListView.getLastVisiblePosition()==totalItemsCount-1 && i==SCROLL_STATE_IDLE && !isLoading){
-//            isLoading = true;
-//            this.addFooterView(ftView);
-//            loadListener.onLoad();
-//        }
         if(firstVisible==0 && i==SCROLL_STATE_IDLE){
             hdView.setPadding(0,0,0,0);
             hdText.setText("Refreshing...");
