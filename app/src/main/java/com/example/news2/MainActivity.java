@@ -39,6 +39,7 @@ import androidx.viewpager.widget.ViewPager;
 import android.view.Menu;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -303,7 +304,11 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 ArrayList<News> get = refreshData();
+                if(get.size()==0){
+                    Toast.makeText(MainActivity.this, "Nothing New", Toast.LENGTH_SHORT).show();
+                }else {
                 mNewsAdapters[currentView].addBefore(get);
+                }
                 mListViews[currentView].loadComplete();
             }
         },1000);
