@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity
     private static final String[] categories = {"Latest News", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
     private static final String[] categoriesDB = {"recommend", "entertainment", "military", "education", "culture", "healthy", "finance", "sports", "cars", "technology", "society"};
     private static final String[] categoriesCN = {"", "娱乐", "军事", "教育", "文化", "健康", "财经", "体育", "汽车", "科技", "社会"};
-//    private static Map<String,Integer> cate = new HashMap<>();
+    private static Map<String,Integer> cate = new HashMap<>();
     private static Integer[] index = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
 
     private static ViewPager vp;
@@ -154,9 +154,9 @@ public class MainActivity extends AppCompatActivity
         pagerTabStrip.setTabIndicatorColor(0xffc17b41);
         pagerTabStrip.setTextColor(0xffc17b41);
 
-//        for(int i=1;i<numOfCategories;i++){
-//            cate.put(categoriesCN[i],i);
-//        }
+        for(int i=1;i<numOfCategories;i++){
+            cate.put(categoriesCN[i],i);
+        }
 
         for(int i=0;i<layout_array.length();i++){
             mListViews[i] = (MyListView) views.get(i).findViewById(listviewIds[i]);
@@ -442,7 +442,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void firstLoadNews() {
-        for(int i = 0; i < 11; i++){
+        for(int i = 1; i < 11; i++){
             ArrayList<News> tempNews = new ArrayList<>();
             Cursor cursor = db.query(true, categoriesDB[i], null, null, null, null, null, "publishTime desc", "10" );
             if (cursor.moveToFirst()) {
@@ -591,8 +591,9 @@ public class MainActivity extends AppCompatActivity
     public static void addToStared(News news) {
         staredNews.add(0,news);
         int i = vp.getCurrentItem();
-//        int i2 = cate.get(news.getCategory());
+        int i2 = cate.get(news.getCategory());
         mNewsAdapters[i].notifyDataSetChanged();
+        mNewsAdapters[i2].notifyDataSetChanged();
     }
 
     public  static  void removeFromStared(News news) {
