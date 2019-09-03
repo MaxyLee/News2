@@ -50,7 +50,12 @@ public class NewsActivity extends Activity {
             public void onClick(View view) {
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
-                String shareBody = "Body";
+                String shareBody = mNews.getTitle();
+                if(mNews.getImages()!=null&&mNews.getImages().length>0){
+                    shareBody += " "+mNews.getImages()[0];
+                }
+                String abs = mNews.getContent();
+                shareBody += " "+(abs.length()<100?abs:abs.substring(0,100));
                 String shareSubject = "Subject";
                 sharingIntent.putExtra(Intent.EXTRA_TEXT,shareBody);
                 sharingIntent.putExtra(Intent.EXTRA_SUBJECT,shareSubject);

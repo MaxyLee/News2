@@ -442,7 +442,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void firstLoadNews() {
-        for(int i = 1; i < 11; i++){
+        for(int i = 0; i < 11; i++){
             ArrayList<News> tempNews = new ArrayList<>();
             Cursor cursor = db.query(true, categoriesDB[i], null, null, null, null, null, "publishTime desc", "10" );
             if (cursor.moveToFirst()) {

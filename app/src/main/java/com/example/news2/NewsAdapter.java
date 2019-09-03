@@ -1,6 +1,8 @@
 package com.example.news2;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +15,11 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class NewsAdapter extends BaseAdapter {
@@ -43,12 +50,12 @@ public class NewsAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, final View convertView, ViewGroup parent) {
+    public View getView(final int i, final View convertView, ViewGroup parent) {
         final int rank = i;
         View v = mInflater.inflate(R.layout.simple_list_item_1,null);
         TextView time = v.findViewById(R.id.time);
         TextView title = (TextView) v.findViewById(R.id.title);
-        ImageView image = (ImageView) v.findViewById(R.id.image);
+        final ImageView image = (ImageView) v.findViewById(R.id.image);
         TextView text = v.findViewById(R.id.text);
         final ImageButton star = v.findViewById(R.id.btn_star);
         final News mNews = mNewsList.get(i);
@@ -84,11 +91,28 @@ public class NewsAdapter extends BaseAdapter {
         });
 
         if(mNewsList.get(i).getImages()!=null){
-            try{
-                Picasso.with(this.context).load(mNewsList.get(i).getImages()[0]).placeholder(R.mipmap.ic_launcher).into(image);
-            }catch (Exception e){
-                Log.e("yoooooooooooo","Man?");
+//            Log.d("heyyyyyyyyyyyyyyy Bro",mNewsList.get(i).getImages().length+"");
+            if(mNewsList.get(i).getImages().length>0){
+                Log.e("heyyyyyyyyyyyyyyy Bro",mNewsList.get(i).getImages()[0]);
+//                final String url = mNewsList.get(i).getImages()[0];
+//                final Bitmap[] bitmap = new Bitmap[1];
+                try{
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            bitmap[0] =getImageBitmap(url);
+//                        }
+//                    });
+//                    image.setImageBitmap(bitmap[0]);
+//                image.setImageBitmap(img);
+                    Picasso.with(this.context).load(mNewsList.get(i).getImages()[0]).placeholder(R.mipmap.ic_launcher).into(image);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    Log.e("yoooooooooooo","Man?");
+                }
             }
+
+
         }
         if(mNews.getVisited()){
             text.setTextColor(Color.parseColor("#969696"));
@@ -111,5 +135,23 @@ public class NewsAdapter extends BaseAdapter {
         isStarAct = true;
     }
 
-
+//    public Bitmap getImageBitmap(String url) {
+//        Bitmap bitmap =null ;
+//        try {
+//            URL imgUrl = new URL(url);
+//            HttpURLConnection conn = (HttpURLConnection) imgUrl
+//                    .openConnection();
+//
+//            conn.connect();
+//            InputStream is = conn.getInputStream();
+//            bitmap = BitmapFactory.decodeStream(is);
+//            is.close();
+//        } catch (MalformedURLException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return bitmap;
+//    }
 }
