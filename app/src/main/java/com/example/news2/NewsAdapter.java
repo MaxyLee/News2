@@ -46,6 +46,7 @@ public class NewsAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, final View convertView, ViewGroup parent) {
+        final int rank = i;
         v = mInflater.inflate(R.layout.simple_list_item_1,null);
         TextView time = v.findViewById(R.id.time);
         TextView title = (TextView) v.findViewById(R.id.title);
@@ -68,15 +69,17 @@ public class NewsAdapter extends BaseAdapter {
         star.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mNews.Stared()){
+                if(mNews.getStared()){
                     star.setImageDrawable(context.getDrawable(R.drawable.star_border));
-                    MainActivity.removeFromStared(mNews);
+                    MainActivity.removeFromStared(rank);
                     if(isStarAct){
                         mNewsList.remove(mNews);
                     }
+                    mNews.setStared(false);
                 }else{
                     star.setImageDrawable(context.getDrawable(R.drawable.star_yellow));
                     MainActivity.addToStared(mNews);
+                    mNews.setStared(true);
                 }
                 notifyDataSetChanged();
             }

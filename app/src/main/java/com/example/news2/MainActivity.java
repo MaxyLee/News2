@@ -50,6 +50,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.text.SimpleDateFormat;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity
     private static final String[] categories = {"Latest News", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
     private static final String[] categoriesDB = {"recommend", "entertainment", "military", "education", "culture", "healthy", "finance", "sports", "cars", "technology", "society"};
     private static final String[] categoriesCN = {"", "娱乐", "军事", "教育", "文化", "健康", "财经", "体育", "汽车", "科技", "社会"};
+    private static Map<String,Integer> cate = new HashMap<>();
     private static Integer[] index = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
 
     private static ViewPager vp;
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity
     private boolean[] selected = new boolean[numOfCategories];
     private String[] titles = new String[numOfCategories];
     private MyDatabaseHelper dbHelper;
-    private ArrayList<ArrayList<News>> total = new ArrayList<>();
+    private static ArrayList<ArrayList<News>> total = new ArrayList<>();
     private String lastestNews;
     private SQLiteDatabase db;
     private Date time = new Date();
@@ -150,6 +152,10 @@ public class MainActivity extends AppCompatActivity
         vp.setAdapter(mAdpter);
         pagerTabStrip.setTabIndicatorColor(0xffc17b41);
         pagerTabStrip.setTextColor(0xffc17b41);
+
+        for(int i=1;i<numOfCategories;i++){
+            cate.put(categoriesCN[i],i);
+        }
 
         for(int i=0;i<layout_array.length();i++){
             mListViews[i] = (MyListView) views.get(i).findViewById(listviewIds[i]);
@@ -547,15 +553,16 @@ public class MainActivity extends AppCompatActivity
 
     public static void addToStared(News news) {
         staredNews.add(0,news);
+        Log.d("mmm",""+total.get(1).get(0).getStared());
+        int i = vp.getCurrentItem();
+        int i2 = cate.get(news.getCategory());
+        mNewsAdapters[i].notifyDataSetChanged();
     }
 
-    public  static  void removeFromStared(News news) {
-        int c1 = staredNews.size();
-        staredNews.remove(news);
-        int c2 = staredNews.size();
-        Log.d("qqqqqqqq",c1+":"+c2);
+    public  static  void removeFromStared(int rank) {
+        staredNews.get(rank).setStared(false);
+        staredNews.remove(rank);
         int i = vp.getCurrentItem();
-//        View v = mListViews[i].getChildAt(0);
         mNewsAdapters[i].notifyDataSetChanged();
     }
 }

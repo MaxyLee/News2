@@ -97,10 +97,8 @@ public class News implements Serializable {
         return this.visited;
     }
 
-    public boolean Stared() {
-        boolean t = stared;
-        stared = !stared;
-        return t;
+    public void setStared(boolean t) {
+        this.stared = t;
     }
 
     public boolean getStared() {
