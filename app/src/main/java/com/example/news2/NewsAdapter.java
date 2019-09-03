@@ -20,8 +20,6 @@ public class NewsAdapter extends BaseAdapter {
     private ArrayList<News> mNewsList;
     private Context context;
     private boolean isStarAct = false;
-    private ImageButton star;
-    private View v;
 
     public NewsAdapter(Context context,ArrayList<News> newsList) {
         this.mNewsList = newsList;
@@ -47,12 +45,12 @@ public class NewsAdapter extends BaseAdapter {
     @Override
     public View getView(int i, final View convertView, ViewGroup parent) {
         final int rank = i;
-        v = mInflater.inflate(R.layout.simple_list_item_1,null);
+        View v = mInflater.inflate(R.layout.simple_list_item_1,null);
         TextView time = v.findViewById(R.id.time);
         TextView title = (TextView) v.findViewById(R.id.title);
         ImageView image = (ImageView) v.findViewById(R.id.image);
         TextView text = v.findViewById(R.id.text);
-        star = v.findViewById(R.id.btn_star);
+        final ImageButton star = v.findViewById(R.id.btn_star);
         final News mNews = mNewsList.get(i);
 
 
@@ -71,7 +69,7 @@ public class NewsAdapter extends BaseAdapter {
             public void onClick(View view) {
                 if(mNews.getStared()){
                     star.setImageDrawable(context.getDrawable(R.drawable.star_border));
-                    MainActivity.removeFromStared(rank);
+                    MainActivity.removeFromStared(mNews);
                     if(isStarAct){
                         mNewsList.remove(mNews);
                     }
@@ -113,11 +111,5 @@ public class NewsAdapter extends BaseAdapter {
         isStarAct = true;
     }
 
-    public void updateView() {
-        star.setImageDrawable(context.getDrawable(R.drawable.star_border));
-    }
 
-//    public View getmView() {
-//        return v;
-//    }
 }

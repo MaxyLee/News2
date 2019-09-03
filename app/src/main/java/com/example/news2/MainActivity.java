@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity
     private static final String[] categories = {"Latest News", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
     private static final String[] categoriesDB = {"recommend", "entertainment", "military", "education", "culture", "healthy", "finance", "sports", "cars", "technology", "society"};
     private static final String[] categoriesCN = {"", "娱乐", "军事", "教育", "文化", "健康", "财经", "体育", "汽车", "科技", "社会"};
-    private static Map<String,Integer> cate = new HashMap<>();
+//    private static Map<String,Integer> cate = new HashMap<>();
     private static Integer[] index = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
 
     private static ViewPager vp;
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity
     private boolean[] selected = new boolean[numOfCategories];
     private String[] titles = new String[numOfCategories];
     private MyDatabaseHelper dbHelper;
-    private static ArrayList<ArrayList<News>> total = new ArrayList<>();
+    private ArrayList<ArrayList<News>> total = new ArrayList<>();
     private String lastestNews;
     private SQLiteDatabase db;
     private Date time = new Date();
@@ -106,9 +106,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 int i = vp.getCurrentItem();
-//                mListViews[i].smoothScrollToPosition(mListViews[i].getCount());
+                mListViews[i].smoothScrollToPosition(mListViews[i].getCount());
 //                mListViews[i].invalidate();
-                mNewsAdapters[i].updateView();
+//                mNewsAdapters[i].updateView();
             }
         });
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -153,17 +153,17 @@ public class MainActivity extends AppCompatActivity
         pagerTabStrip.setTabIndicatorColor(0xffc17b41);
         pagerTabStrip.setTextColor(0xffc17b41);
 
-        for(int i=1;i<numOfCategories;i++){
-            cate.put(categoriesCN[i],i);
-        }
+//        for(int i=1;i<numOfCategories;i++){
+//            cate.put(categoriesCN[i],i);
+//        }
 
         for(int i=0;i<layout_array.length();i++){
             mListViews[i] = (MyListView) views.get(i).findViewById(listviewIds[i]);
             mListViews[i].setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Intent intent = new Intent(MainActivity.this,NewsActivity.class);
                     Log.d("mmmmmmmmmmmmmmaxy",""+i);
+                    Intent intent = new Intent(MainActivity.this,NewsActivity.class);
                     News tNews = total.get(vp.getCurrentItem()).get(i-1);
                     addToHistory(tNews);
                     intent.putExtra("news",tNews);
@@ -553,15 +553,21 @@ public class MainActivity extends AppCompatActivity
 
     public static void addToStared(News news) {
         staredNews.add(0,news);
-        Log.d("mmm",""+total.get(1).get(0).getStared());
         int i = vp.getCurrentItem();
-        int i2 = cate.get(news.getCategory());
+//        int i2 = cate.get(news.getCategory());
         mNewsAdapters[i].notifyDataSetChanged();
     }
 
-    public  static  void removeFromStared(int rank) {
-        staredNews.get(rank).setStared(false);
-        staredNews.remove(rank);
+    public  static  void removeFromStared(News news) {
+//        staredNews.get(rank).setStared(false);
+//        staredNews.remove(rank);
+        for(News n:staredNews){
+            if(n.getNewsID().equals(news.getNewsID())){
+                n.setStared(false);
+                staredNews.remove(n);
+                break;
+            }
+        }
         int i = vp.getCurrentItem();
         mNewsAdapters[i].notifyDataSetChanged();
     }

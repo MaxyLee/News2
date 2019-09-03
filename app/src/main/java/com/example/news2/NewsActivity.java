@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 public class NewsActivity extends Activity {
@@ -23,6 +22,8 @@ public class NewsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_news);
         mNews = (News) getIntent().getSerializableExtra("news");
+
+        Log.e("yoooooooooooo","whats up man?");
 
         title = (TextView) findViewById(R.id.nTitle);
         publisher = (TextView) findViewById(R.id.nPublisher);
@@ -58,8 +59,4 @@ public class NewsActivity extends Activity {
         });
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        scrollToFinishActivity();//左滑退出activity
-//    }
 }
