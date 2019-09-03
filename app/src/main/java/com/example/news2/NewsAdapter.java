@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -20,6 +19,9 @@ public class NewsAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private ArrayList<News> mNewsList;
     private Context context;
+    private boolean isStarAct = false;
+    private ImageButton star;
+    private View v;
 
     public NewsAdapter(Context context,ArrayList<News> newsList) {
         this.mNewsList = newsList;
@@ -44,12 +46,12 @@ public class NewsAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, final View convertView, ViewGroup parent) {
-        View v = mInflater.inflate(R.layout.simple_list_item_1,null);
+        v = mInflater.inflate(R.layout.simple_list_item_1,null);
         TextView time = v.findViewById(R.id.time);
         TextView title = (TextView) v.findViewById(R.id.title);
         ImageView image = (ImageView) v.findViewById(R.id.image);
         TextView text = v.findViewById(R.id.text);
-        final ImageButton star = v.findViewById(R.id.btn_star);
+        star = v.findViewById(R.id.btn_star);
         final News mNews = mNewsList.get(i);
 
 
@@ -69,7 +71,9 @@ public class NewsAdapter extends BaseAdapter {
                 if(mNews.Stared()){
                     star.setImageDrawable(context.getDrawable(R.drawable.star_border));
                     MainActivity.removeFromStared(mNews);
-                    mNewsList.remove(mNews);
+                    if(isStarAct){
+                        mNewsList.remove(mNews);
+                    }
                 }else{
                     star.setImageDrawable(context.getDrawable(R.drawable.star_yellow));
                     MainActivity.addToStared(mNews);
@@ -101,4 +105,16 @@ public class NewsAdapter extends BaseAdapter {
         mNewsList.addAll(0,newsList);
         this.notifyDataSetChanged();
     }
+
+    public  void setStarAct() {
+        isStarAct = true;
+    }
+
+    public void updateView() {
+        star.setImageDrawable(context.getDrawable(R.drawable.star_border));
+    }
+
+//    public View getmView() {
+//        return v;
+//    }
 }

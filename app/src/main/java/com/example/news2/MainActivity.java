@@ -49,11 +49,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -65,19 +62,19 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,MyListView.LoadListener {
 
     private static final int numOfCategories = 11;
-    private static final String[] categories = {"Recommend", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
+    private static final String[] categories = {"Latest News", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
     private static final String[] categoriesDB = {"recommend", "entertainment", "military", "education", "culture", "healthy", "finance", "sports", "cars", "technology", "society"};
     private static final String[] categoriesCN = {"", "娱乐", "军事", "教育", "文化", "健康", "财经", "体育", "汽车", "科技", "社会"};
     private static Integer[] index = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
 
-    private ViewPager vp;
+    private static ViewPager vp;
     private PagerTabStrip pagerTabStrip;
     private MyAdapter mAdpter = new MyAdapter();
     private AlertDialog.Builder mBuilder;
-    private NewsAdapter[] mNewsAdapters = new NewsAdapter[numOfCategories];
+    private static NewsAdapter[] mNewsAdapters = new NewsAdapter[numOfCategories];
     private ArrayList<View> views = new ArrayList<>();
     private View[] mViews = new View[numOfCategories];
-    private MyListView[] mListViews = new MyListView[numOfCategories];
+    private static MyListView[] mListViews = new MyListView[numOfCategories];
     private static ArrayList<News> staredNews = new ArrayList<>();
     private static ArrayList<News> historyNews = new ArrayList<>();
     private int[] layoutIds = new int[numOfCategories];
@@ -107,8 +104,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 int i = vp.getCurrentItem();
-                Log.d("mmm",""+total.get(i).size());
-                mListViews[i].smoothScrollToPosition(mListViews[i].getCount());
+//                mListViews[i].smoothScrollToPosition(mListViews[i].getCount());
+//                mListViews[i].invalidate();
+                mNewsAdapters[i].updateView();
             }
         });
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -552,6 +550,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     public  static  void removeFromStared(News news) {
+        int c1 = staredNews.size();
         staredNews.remove(news);
+        int c2 = staredNews.size();
+        Log.d("qqqqqqqq",c1+":"+c2);
+        int i = vp.getCurrentItem();
+//        View v = mListViews[i].getChildAt(0);
+        mNewsAdapters[i].notifyDataSetChanged();
     }
 }

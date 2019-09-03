@@ -29,6 +29,7 @@ public class StaredActivity extends Activity {
         }
         mListView = (ListView)this.findViewById(R.id.listview_stared);
         mNewsAdapter = new NewsAdapter(this,staredNews);
+        mNewsAdapter.setStarAct();
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
