@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity
     private MyDatabaseHelper dbHelper;
     private ArrayList<ArrayList<News>> total = new ArrayList<>();
     private String lastestNews;
-    private SQLiteDatabase db;
+    private static SQLiteDatabase db;
     private Date time = new Date();
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -121,14 +121,15 @@ public class MainActivity extends AppCompatActivity
 
         dbHelper = new MyDatabaseHelper(this, "newsDB.db", null, 1);
         db = dbHelper.getWritableDatabase();
-        //删除数据库中的记录
-        //for(int j = 0; j < 11; j++)
-        //    deleteDB(j);
+//        删除数据库中的记录
+//        for(int j = 0; j < 11; j++)
+//            db.delete(categoriesDB[j], null, null);
+//        db.delete("visitedID", null, null);
         //删除数据库
 //        dbHelper.deleteDatabase(this);
         //判断数据库是否为空，若为空，则加载数据
         isEmpty();
-
+        addNewsToHistory();
         firstLoadNews();
 
         vp = findViewById(R.id.vp);
@@ -305,10 +306,13 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 ArrayList<News> get = refreshData();
-                if(get.size()==0){
+                if(get==null){
+                    Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+                }else if(get.size()==0){
                     Toast.makeText(MainActivity.this, "Nothing New", Toast.LENGTH_SHORT).show();
                 }else {
-                mNewsAdapters[currentView].addBefore(get);
+                    mNewsAdapters[currentView].addBefore(get);
+                    Toast.makeText(MainActivity.this, get.size()+"piece(s) of news refreshed", Toast.LENGTH_SHORT).show();
                 }
                 mListViews[currentView].loadComplete();
             }
@@ -368,6 +372,9 @@ public class MainActivity extends AppCompatActivity
             do {
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
+                Cursor cursor1 = db.query("visitedID", new String[]{"newsID"}, "newsID = ?", new String[]{temp.getNewsID()}, null, null, null);
+                if(cursor1.getCount() != 0)
+                    temp.setVisited();
                 temp.setImages();
                 lst.add(temp);
             } while (cursor.moveToNext());
@@ -398,9 +405,12 @@ public class MainActivity extends AppCompatActivity
         });
         refresh.start();
         try{
-            refresh.join();
+            refresh.join(5000);
         }catch(InterruptedException e){
             e.printStackTrace();
+        }
+        if(lastestNews == ""){
+            return null;
         }
         //先添加到数据库中
         ContentValues values = new ContentValues();
@@ -409,12 +419,17 @@ public class MainActivity extends AppCompatActivity
         for (int i = 0; i < jsonObjects.size(); i++) {
             JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
             String publishTime = jsonObject3.get("publishTime").getAsString();
+            String newsID = jsonObject3.get("newsID").getAsString();
             String str = jsonObject3.toString();
             cursor = db.query(categoriesDB[vp.getCurrentItem()], new String[]{"newsJson"}, "newsJson = ?", new String[]{str}, null, null, null);
             if(cursor.getCount() == 0){
                 values.put("newsJson", str);
                 values.put("publishTime", publishTime);
+                values.put("newsID", newsID);
                 News temp = new Gson().fromJson(str, News.class);
+                Cursor cursor1 = db.query("visitedID", new String[]{"newsID"}, "newsID = ?", new String[]{temp.getNewsID()}, null, null, null);
+                if(cursor1.getCount() != 0)
+                    temp.setVisited();
                 temp.setImages();
                 lst.add(temp);
                 db.insert(tempCategories, null, values);
@@ -422,18 +437,7 @@ public class MainActivity extends AppCompatActivity
             cursor.close();
         }
         //从数据库中读取最新的10条
-        index[vp.getCurrentItem()] = 10 + lst.size();
-
-//        cursor = db.query(true, categoriesDB[vp.getCurrentItem()], null, null, null, null, null, "publishTime desc", "10" );
-//        if (cursor.moveToFirst()) {
-//            do {
-//                String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
-//                News temp = new Gson().fromJson(jsonStr, News.class);
-//                temp.setImages();
-//                lst.add(temp);
-//            } while (cursor.moveToNext());
-//        }
-//        cursor.close();
+        index[vp.getCurrentItem()] += lst.size();
         return lst;
     }
 
@@ -445,6 +449,9 @@ public class MainActivity extends AppCompatActivity
                 do {
                     String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                     News temp = new Gson().fromJson(jsonStr, News.class);
+                    Cursor cursor1 = db.query("visitedID", new String[]{"newsID"}, "newsID = ?", new String[]{temp.getNewsID()}, null, null, null);
+                    if(cursor1.getCount() != 0)
+                        temp.setVisited();
                     temp.setImages();
                     tempNews.add(temp);
                 } while (cursor.moveToNext());
@@ -476,22 +483,21 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void deleteDB(int index){
-        db.delete(categoriesDB[index], null, null);
-    }
-
     private void addDataToDb(int number) {
         String tempCategories = categoriesCN[number];
-        String jsonText = result("100", "", df.format(time), "", tempCategories);
+        //先不取最新时间 df.format(time)
+        String jsonText = result("100", "", "2019-08-25", "", tempCategories);
         ContentValues values = new ContentValues();
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
         JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
         for (int i = 0; i < jsonObjects.size(); i++) {
             JsonObject jsonObject3 = jsonObjects.get(i).getAsJsonObject();
             String publishTime = jsonObject3.get("publishTime").getAsString();
+            String newsID = jsonObject3.get("newsID").getAsString();
             String str = jsonObject3.toString();
             values.put("newsJson", str);
             values.put("publishTime", publishTime);
+            values.put("newsID", newsID);
             db.insert(categoriesDB[number], null, values);
         }
         Log.e("****************", "Done!");
@@ -546,8 +552,39 @@ public class MainActivity extends AppCompatActivity
         return sb.toString();
     }
 
+    public void addNewsToHistory(){
+        Cursor cursor = db.query("visitedID", null, null, null, null, null, "id desc");
+        if (cursor.moveToFirst()) {
+            do {
+                Log.e("***********************", cursor.getString(cursor.getColumnIndex("newsID")));
+                for(int i = 0; i < 11; i++){
+                    Cursor cursor1 = db.query(categoriesDB[i], null, "newsID = ?", new String[]{cursor.getString(cursor.getColumnIndex("newsID"))}, null, null, null);
+                    if(cursor1.getCount() != 0){
+                        cursor1.moveToFirst();
+                        String jsonStr = cursor1.getString(cursor1.getColumnIndex("newsJson"));
+                        News temp = new Gson().fromJson(jsonStr, News.class);
+                        Log.e("***********************", temp.getTitle());
+                        temp.setVisited();
+                        historyNews.add(temp);
+                        break;
+                    }
+                    cursor1.close();
+                }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    }
+
     public static void addToHistory(News news) {
         news.setVisited();
+        ContentValues values = new ContentValues();
+        Cursor cursor = db.query("visitedID", new String[]{"newsID"}, "newsID = ?", new String[]{news.getNewsID()}, null, null, null);
+        if(cursor.getCount() == 0){
+            Log.e("***************", news.getNewsID());
+            values.put("newsID", news.getNewsID());
+            db.insert("visitedID", null, values);
+        }
+        cursor.close();
         historyNews.add(0,news);
     }
 
