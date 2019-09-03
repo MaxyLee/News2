@@ -13,6 +13,7 @@ public class News implements Serializable {
     private String category;
     private String[] images;
     private boolean visited = false;
+    private boolean stared = false;
 
     public void setImages() {
         String str = this.image;
@@ -94,5 +95,15 @@ public class News implements Serializable {
 
     public boolean getVisited() {
         return this.visited;
+    }
+
+    public boolean Stared() {
+        boolean t = stared;
+        stared = !stared;
+        return t;
+    }
+
+    public boolean getStared() {
+        return this.stared;
     }
 }

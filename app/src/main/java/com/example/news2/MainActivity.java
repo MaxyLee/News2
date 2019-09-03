@@ -78,8 +78,7 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<View> views = new ArrayList<>();
     private View[] mViews = new View[numOfCategories];
     private MyListView[] mListViews = new MyListView[numOfCategories];
-    private ArrayList<News> news = new ArrayList<>();
-    private ArrayList<News> staredNews = new ArrayList<>();
+    private static ArrayList<News> staredNews = new ArrayList<>();
     private static ArrayList<News> historyNews = new ArrayList<>();
     private int[] layoutIds = new int[numOfCategories];
     private int[] listviewIds = new int[numOfCategories];
@@ -87,7 +86,6 @@ public class MainActivity extends AppCompatActivity
     private String[] titles = new String[numOfCategories];
     private MyDatabaseHelper dbHelper;
     private ArrayList<ArrayList<News>> total = new ArrayList<>();
-    private int currentId = 11;
     private String lastestNews;
     private SQLiteDatabase db;
     private Date time = new Date();
@@ -547,5 +545,13 @@ public class MainActivity extends AppCompatActivity
     public static void addToHistory(News news) {
         news.setVisited();
         historyNews.add(0,news);
+    }
+
+    public static void addToStared(News news) {
+        staredNews.add(0,news);
+    }
+
+    public  static  void removeFromStared(News news) {
+        staredNews.remove(news);
     }
 }

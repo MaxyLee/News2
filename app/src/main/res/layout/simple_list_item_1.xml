@@ -49,6 +49,15 @@
                     android:padding="6dp"
                     android:background="#99d1d1d1"
                     android:gravity="center|left"/>
+                <ImageButton
+                    android:id="@+id/btn_star"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/star_border"
+                    android:layout_gravity="right"
+                    android:background="#00FFFFFF"/>
+
             </FrameLayout>
             <TextView
                 android:id="@+id/text"
