@@ -162,8 +162,8 @@ public class MainActivity extends AppCompatActivity
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
         vp.setAdapter(mAdpter);
-        pagerTabStrip.setTabIndicatorColor(this.getColor(R.color.colorOrange));
-        pagerTabStrip.setTextColor(this.getColor(R.color.colorOrange));
+        pagerTabStrip.setTabIndicatorColor(this.getColor(R.color.colorFirstDate));
+        pagerTabStrip.setTextColor(this.getColor(R.color.colorFirstDate));
 
         for(int i=1;i<numOfCategories;i++){
             cate.put(categoriesCN[i],i);
@@ -625,5 +625,9 @@ public class MainActivity extends AppCompatActivity
         }
         int i = vp.getCurrentItem();
         mNewsAdapters[i].notifyDataSetChanged();
+    }
+
+    public static boolean getNight() {
+        return night;
     }
 }

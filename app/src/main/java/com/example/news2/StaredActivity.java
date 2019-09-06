@@ -7,9 +7,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+
 import java.util.ArrayList;
 
-public class StaredActivity extends Activity {
+public class StaredActivity extends AppCompatActivity {
 
     private ArrayList<News> staredNews = new ArrayList<>();
     private NewsAdapter mNewsAdapter;
@@ -18,6 +21,8 @@ public class StaredActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getSupportActionBar().hide();
         setContentView(R.layout.stared);
         init();
     }
@@ -39,5 +44,8 @@ public class StaredActivity extends Activity {
             }
         });
         mListView.setAdapter(mNewsAdapter);
+        if(MainActivity.getNight()){
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }
     }
 }
