@@ -7,9 +7,7 @@
     <com.example.news2.MyListView
         android:id="@+id/listview_recommend"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:dividerHeight="5dp"
-        android:divider="#d1d1d1">
+        android:layout_height="match_parent">
     </com.example.news2.MyListView>
 
 </LinearLayout>

@@ -151,8 +151,8 @@ public class MainActivity extends AppCompatActivity
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
         vp.setAdapter(mAdpter);
-        pagerTabStrip.setTabIndicatorColor(0xffc17b41);
-        pagerTabStrip.setTextColor(0xffc17b41);
+        pagerTabStrip.setTabIndicatorColor(this.getColor(R.color.colorOrange));
+        pagerTabStrip.setTextColor(this.getColor(R.color.colorOrange));
 
         for(int i=1;i<numOfCategories;i++){
             cate.put(categoriesCN[i],i);

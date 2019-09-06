@@ -37,7 +37,7 @@ public class NewsActivity extends Activity {
         text.setText(mNews.getContent());
 //        image.setImageResource(mNews.getImageId());
         try{
-            Picasso.with(this).load(mNews.getImages()[0]).placeholder(R.mipmap.ic_launcher).into(image);
+            Picasso.with(this).load(mNews.getImages()[0]).placeholder(R.mipmap.logo).into(image);
             Log.e("hiiiiiiiiii","wtffffff?"+mNews.getImages()[0]);
         }catch (Exception e){
             Log.e("yoooooooooooo","Bro?");

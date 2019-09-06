@@ -105,7 +105,7 @@ public class NewsAdapter extends BaseAdapter {
 //                    });
 //                    image.setImageBitmap(bitmap[0]);
 //                image.setImageBitmap(img);
-                    Picasso.with(this.context).load(mNewsList.get(i).getImages()[0]).placeholder(R.mipmap.ic_launcher).into(image);
+                    Picasso.with(this.context).load(mNewsList.get(i).getImages()[0]).placeholder(R.mipmap.logo).into(image);
                 }catch (Exception e){
                     e.printStackTrace();
                     Log.e("yoooooooooooo","Man?");
