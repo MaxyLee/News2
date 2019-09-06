@@ -17,6 +17,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
@@ -70,15 +71,16 @@ public class MainActivity extends AppCompatActivity
     private static Integer[] index = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
 
     private static ViewPager vp;
-    private PagerTabStrip pagerTabStrip;
-    private MyAdapter mAdpter = new MyAdapter();
-    private AlertDialog.Builder mBuilder;
     private static NewsAdapter[] mNewsAdapters = new NewsAdapter[numOfCategories];
-    private ArrayList<View> views = new ArrayList<>();
-    private View[] mViews = new View[numOfCategories];
     private static MyListView[] mListViews = new MyListView[numOfCategories];
     private static ArrayList<News> staredNews = new ArrayList<>();
     private static ArrayList<News> historyNews = new ArrayList<>();
+    private static SQLiteDatabase db;
+    private PagerTabStrip pagerTabStrip;
+    private MyAdapter mAdpter = new MyAdapter();
+    private AlertDialog.Builder mBuilder;
+    private ArrayList<View> views = new ArrayList<>();
+    private View[] mViews = new View[numOfCategories];
     private int[] layoutIds = new int[numOfCategories];
     private int[] listviewIds = new int[numOfCategories];
     private boolean[] selected = new boolean[numOfCategories];
@@ -86,9 +88,10 @@ public class MainActivity extends AppCompatActivity
     private MyDatabaseHelper dbHelper;
     private ArrayList<ArrayList<News>> total = new ArrayList<>();
     private String lastestNews;
-    private static SQLiteDatabase db;
     private Date time = new Date();
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static boolean night = false;
+
 
 
     @Override
@@ -135,6 +138,14 @@ public class MainActivity extends AppCompatActivity
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
         init();
+        MenuItem item = findViewById(R.id.nav_night);
+        if(night){
+//            item.setIcon(R.drawable.moon);
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
     }
 
     private void init() {
@@ -226,6 +237,10 @@ public class MainActivity extends AppCompatActivity
             Stared();
         } else if (id == R.id.nav_history) {
             History();
+        } else if(id == R.id.nav_night) {
+            Log.e("nnnnnnnnnight",""+night);
+            night = !night;
+            recreate();
         }
 
 
@@ -298,6 +313,8 @@ public class MainActivity extends AppCompatActivity
         }
         startActivity(intent);
     }
+
+
 
     @Override
     public void PullLoad() {

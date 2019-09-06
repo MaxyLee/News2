@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
@@ -16,6 +18,7 @@ public class NewsActivity extends Activity {
     News mNews;
     TextView title,publisher,time,text;
     ImageView image;
+    VideoView video;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -25,23 +28,37 @@ public class NewsActivity extends Activity {
 
         Log.e("yoooooooooooo","whats up man?");
 
-        title = (TextView) findViewById(R.id.nTitle);
-        publisher = (TextView) findViewById(R.id.nPublisher);
-        time = (TextView) findViewById(R.id.nTime);
-        image = (ImageView) findViewById(R.id.nImage);
-        text = (TextView) findViewById(R.id.nNews);
+        title = findViewById(R.id.nTitle);
+        publisher = findViewById(R.id.nPublisher);
+        time = findViewById(R.id.nTime);
+        image = findViewById(R.id.nImage);
+        text = findViewById(R.id.nNews);
+        video = findViewById(R.id.nVideo);
+        video.setVisibility(View.GONE);
 
         title.setText(mNews.getTitle());
         publisher.setText(mNews.getPublisher());
         time.setText(mNews.getPublishTime());
         text.setText(mNews.getContent());
-//        image.setImageResource(mNews.getImageId());
-        try{
-            Picasso.with(this).load(mNews.getImages()[0]).placeholder(R.mipmap.logo).into(image);
-            Log.e("hiiiiiiiiii","wtffffff?"+mNews.getImages()[0]);
-        }catch (Exception e){
-            Log.e("yoooooooooooo","Bro?");
+
+        String vurl = mNews.getVideo();
+        if(vurl.equals("")){
+            try{
+                Picasso.with(this).load(mNews.getImages()[0]).placeholder(R.mipmap.logo).into(image);
+                Log.e("hiiiiiiiiii","wtffffff?"+mNews.getImages()[0]);
+            }catch (Exception e){
+                Log.e("yoooooooooooo","Bro?");
+            }
+        } else {
+            Log.d("mannnnnnnnnn","there's a video");
+            image.setVisibility(View.GONE);
+            video.setVisibility(View.VISIBLE);
+            MediaController localMediaController = new MediaController(this);
+            video.setMediaController(localMediaController);
+            video.setVideoPath(vurl);
+            video.start();
         }
+
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_share);

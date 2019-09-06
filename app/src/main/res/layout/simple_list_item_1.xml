@@ -18,6 +18,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/colorBackground"
             android:layout_gravity="center">
 
             <FrameLayout
@@ -63,11 +64,10 @@
             </FrameLayout>
             <TextView
                 android:id="@+id/text"
-                android:textColor="#e6000000"
+                android:textColor="@color/colorText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="6dp"
-                />
+                android:layout_margin="6dp"/>
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

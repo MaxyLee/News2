@@ -2,6 +2,7 @@ package com.example.news2;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,8 +10,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -39,11 +42,17 @@ public class SearchActivity extends Activity {
     private AutoCompleteTextView mAutoCompleteTextView;//搜索输入框
     private ImageView mDeleteButton;//搜索框中的删除按钮
     private ListView mListView;
+    private TextView[] histories = new TextView[4];
     private NewsAdapter mNewsAdapter;
     private ArrayList<News> mNews = new ArrayList<>();
     private String searchNews;
     private Date time = new Date();
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private LinearLayout searchhistory_view;
+    private ArrayList<String> searchHistory = new ArrayList<>();
+    private LinearLayout[] his = new LinearLayout[4];
+    private int[] historyIds = new int[4];
+    private int[] historyviewIds = new int[4];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +82,26 @@ public class SearchActivity extends Activity {
                 startActivity(intent);
             }
         });
+
+        searchhistory_view = findViewById(R.id.history_view);
+        searchhistory_view.setVisibility(View.GONE);
+        searchHistory.add("h1");
+        if(searchHistory.size()>0){
+            TypedArray searchhistory_array = this.getResources().obtainTypedArray(R.array.searchhistory_array);
+            TypedArray historyview_array = this.getResources().obtainTypedArray(R.array.historyview_array);
+            for(int i=0;i<4;i++){
+                historyIds[i] = searchhistory_array.getResourceId(i,0);
+                historyviewIds[i] = historyview_array.getResourceId(i,0);
+                histories[i] = findViewById(historyIds[i]);
+                his[i] = findViewById(historyviewIds[i]);
+                his[i].setVisibility(View.INVISIBLE);
+            }
+            for(int i=0;i<searchHistory.size();i++){
+                histories[i].setText(searchHistory.get(i));
+                his[i].setVisibility(View.VISIBLE);
+            }
+            searchhistory_view.setVisibility(View.VISIBLE);
+        }
     }
 
     private void initData(){
@@ -99,6 +128,11 @@ public class SearchActivity extends Activity {
             //当点击搜索按钮时触发该方法
             @Override
             public boolean onQueryTextSubmit(String query) {
+                if(searchHistory.size()>=4){
+                    searchHistory.remove(3);
+                    searchHistory.add(0,query);
+                }
+                searchhistory_view.setVisibility(View.GONE);
                 ArrayList<News> tmp = Search(query);
                 mNews.clear();
                 if(tmp.size()>0){

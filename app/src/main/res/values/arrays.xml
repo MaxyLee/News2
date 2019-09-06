@@ -42,4 +42,18 @@
         <item>@id/checkbox_technology</item>
         <item>@id/checkbox_society</item>
     </array>
+
+    <array name="searchhistory_array">
+        <item>@id/history1</item>
+        <item>@id/history2</item>
+        <item>@id/history3</item>
+        <item>@id/history4</item>
+    </array>
+
+    <array name="historyview_array">
+        <item>@id/h1</item>
+        <item>@id/h2</item>
+        <item>@id/h3</item>
+        <item>@id/h4</item>
+    </array>
 </resources>

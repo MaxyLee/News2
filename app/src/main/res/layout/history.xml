@@ -6,12 +6,11 @@
     <TextView
         android:text="History"
         android:gravity="center"
-        android:padding="6dp"
-        android:background="#D1D1D1"
-        android:textColor="@color/colorPrimary"
+        android:background="@color/colorPink"
+        android:textColor="@color/colorWhite"
         android:textSize="20sp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="50dp" />
 
     <ListView
         android:id="@+id/listview_history"

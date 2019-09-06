@@ -93,7 +93,7 @@ public class NewsAdapter extends BaseAdapter {
         if(mNewsList.get(i).getImages()!=null){
 //            Log.d("heyyyyyyyyyyyyyyy Bro",mNewsList.get(i).getImages().length+"");
             if(mNewsList.get(i).getImages().length>0){
-                Log.e("heyyyyyyyyyyyyyyy Bro",mNewsList.get(i).getImages()[0]);
+//                Log.e("heyyyyyyyyyyyyyyy Bro",mNewsList.get(i).getImages()[0]);
 //                final String url = mNewsList.get(i).getImages()[0];
 //                final Bitmap[] bitmap = new Bitmap[1];
                 try{
