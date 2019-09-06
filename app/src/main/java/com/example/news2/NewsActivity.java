@@ -2,11 +2,13 @@ package com.example.news2;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -19,6 +21,8 @@ public class NewsActivity extends Activity {
     TextView title,publisher,time,text;
     ImageView image;
     VideoView video;
+
+    ProgressBar mProgressBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,15 +38,18 @@ public class NewsActivity extends Activity {
         image = findViewById(R.id.nImage);
         text = findViewById(R.id.nNews);
         video = findViewById(R.id.nVideo);
+        mProgressBar = findViewById(R.id.nprogressBar);
         video.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
 
         title.setText(mNews.getTitle());
         publisher.setText(mNews.getPublisher());
         time.setText(mNews.getPublishTime());
         text.setText(mNews.getContent());
 
-        String vurl = mNews.getVideo();
+        final String vurl = mNews.getVideo();
         if(vurl.equals("")){
+            Log.d("mannnnnnnnnn","there's no video "+vurl);
             try{
                 Picasso.with(this).load(mNews.getImages()[0]).placeholder(R.mipmap.logo).into(image);
                 Log.e("hiiiiiiiiii","wtffffff?"+mNews.getImages()[0]);
@@ -50,14 +57,38 @@ public class NewsActivity extends Activity {
                 Log.e("yoooooooooooo","Bro?");
             }
         } else {
-//            Log.d("mannnnnnnnnn","there's a video");
+            Log.d("mannnnnnnnnn","there's a video "+vurl);
             image.setVisibility(View.GONE);
             video.setVisibility(View.VISIBLE);
+            mProgressBar.setVisibility(View.VISIBLE);
             MediaController localMediaController = new MediaController(this);
+
             video.setMediaController(localMediaController);
             video.setVideoPath(vurl);
+            video.requestFocus();
             video.start();
+
+            video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mProgressBar.setVisibility(View.GONE);
+                }
+            });
+
+            video.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+                @Override
+                public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                    if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
+                        mProgressBar.setVisibility(View.VISIBLE);
+                    } else {
+                        mProgressBar.setVisibility(View.GONE);
+                    }
+                    return true;
+                }
+            });
         }
+
+
 
 
 
