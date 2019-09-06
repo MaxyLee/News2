@@ -50,7 +50,7 @@ public class NewsActivity extends Activity {
                 Log.e("yoooooooooooo","Bro?");
             }
         } else {
-            Log.d("mannnnnnnnnn","there's a video");
+//            Log.d("mannnnnnnnnn","there's a video");
             image.setVisibility(View.GONE);
             video.setVisibility(View.VISIBLE);
             MediaController localMediaController = new MediaController(this);
