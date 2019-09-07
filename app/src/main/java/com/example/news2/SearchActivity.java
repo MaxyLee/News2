@@ -130,8 +130,8 @@ public class SearchActivity extends Activity {
             public boolean onQueryTextSubmit(String query) {
                 if(searchHistory.size()>=4){
                     searchHistory.remove(3);
-                    searchHistory.add(0,query);
                 }
+                searchHistory.add(0,query);
                 searchhistory_view.setVisibility(View.GONE);
                 ArrayList<News> tmp = Search(query);
                 mNews.clear();

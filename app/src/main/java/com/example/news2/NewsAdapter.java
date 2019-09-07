@@ -86,7 +86,7 @@ public class NewsAdapter extends BaseAdapter {
         if (mNewsList.get(i).getImages() != null) {
             if (mNewsList.get(i).getImages().length > 0) {
                 try {
-                    Picasso.with(this.context).load(mNewsList.get(i).getImages()[0]).placeholder(R.mipmap.logo).into(image);
+                    Picasso.with(this.context).load(mNewsList.get(i).getImages()[0]).placeholder(R.mipmap.logo3).into(image);
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e("yoooooooooooo", "Man?");

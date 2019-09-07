@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity
     private static ArrayList<News> historyNews = new ArrayList<>();
     private static SQLiteDatabase db;
     private PagerTabStrip pagerTabStrip;
-    private MyAdapter mAdpter = new MyAdapter();
+    private MyAdapter mAdapter;
     private AlertDialog.Builder mBuilder;
     private ArrayList<View> views = new ArrayList<>();
     private View[] mViews = new View[numOfCategories];
@@ -138,9 +138,7 @@ public class MainActivity extends AppCompatActivity
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
         init();
-        MenuItem item = findViewById(R.id.nav_night);
         if(night){
-//            item.setIcon(R.drawable.moon);
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -159,11 +157,12 @@ public class MainActivity extends AppCompatActivity
             mViews[i] = getLayoutInflater().inflate(layoutIds[i],null);
             views.add(mViews[i]);
         }
+        mAdapter = new MyAdapter(views);
         vp = findViewById(R.id.vp);
         pagerTabStrip = findViewById(R.id.tap);
-        vp.setAdapter(mAdpter);
         pagerTabStrip.setTabIndicatorColor(this.getColor(R.color.colorFirstDate));
         pagerTabStrip.setTextColor(this.getColor(R.color.colorFirstDate));
+        vp.setAdapter(mAdapter);
 
         for(int i=1;i<numOfCategories;i++){
             cate.put(categoriesCN[i],i);
@@ -278,15 +277,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateView() {
-        views.clear();
+//        views.clear();
         int cnt = 0;
         for(int i=0;i<numOfCategories;i++){
             if(selected[i]){
-                views.add(mViews[i]);
+//                views.add(mViews[i]);
                 titles[cnt++] = categories[i];
+                if(!views.contains(mViews[i])){
+                    views.add(mViews[i]);
+                }
+            } else {
+                if(views.contains(mViews[i])){
+                    views.remove(mViews[i]);
+                }
             }
+            mAdapter.notifyDataSetChanged();
         }
-        mAdpter.notifyDataSetChanged();
     }
 
     private void search() {
@@ -351,6 +357,13 @@ public class MainActivity extends AppCompatActivity
 
 
     class MyAdapter extends PagerAdapter {
+
+        private ArrayList<View> views = new ArrayList<>();
+
+        public MyAdapter(ArrayList<View> views) {
+            this.views = views;
+        }
+
         @Override
         public int getCount() {
             return views.size();
@@ -363,13 +376,25 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-            container.removeView(views.get(position));
+            container.removeView((View)object);
         }
 
         @NonNull
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
             View v = views.get(position);
+            Log.d("lllllllll", "instantiateItem: "+position);
+//            int absPosition = -1;
+//            int cnt = 0;
+//            for(int i=0;i<numOfCategories;i++){
+//                if(selected[i]){
+//                    cnt++;
+//                }
+//                absPosition++;
+//                if(cnt==position)
+//                    break;
+//            }
+//            container.removeView(mViews[absPosition]);
             container.addView(v);
             return v;
         }
@@ -378,6 +403,11 @@ public class MainActivity extends AppCompatActivity
         @Override
         public CharSequence getPageTitle(int position) {
             return titles[position];
+        }
+
+        @Override
+        public int getItemPosition(@NonNull Object object) {
+            return POSITION_NONE;
         }
     }
 
