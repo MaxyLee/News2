@@ -1,6 +1,38 @@
 package com.example.news2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+
+class Keywords implements Comparable, Serializable{
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
+
+    private String score;
+
+    public String getWord() {
+        return word;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
+
+    private String word;
+
+    @Override
+    public int compareTo(Object o) {
+        Keywords k = (Keywords) o;
+        if(this.score.compareTo(k.score) <= 0)
+            return 1;
+        else
+            return -1;
+    }
+}
 
 public class News implements Serializable {
     private String publishTime;
@@ -12,8 +44,17 @@ public class News implements Serializable {
     private String publisher;
     private String category;
     private String[] images;
+    private ArrayList<Keywords> keywords;
     private boolean visited = false;
     private boolean stared = false;
+
+    public ArrayList<Keywords> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(ArrayList<Keywords> keywords) {
+        this.keywords = keywords;
+    }
 
     public void setImages() {
         String str = this.image;

@@ -15,18 +15,10 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db){
-        db.execSQL("create table recommend(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
-        db.execSQL("create table cars(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
-        db.execSQL("create table culture(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
-        db.execSQL("create table education(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
-        db.execSQL("create table entertainment(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
-        db.execSQL("create table finance(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
-        db.execSQL("create table healthy(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
-        db.execSQL("create table military(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
-        db.execSQL("create table society(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
-        db.execSQL("create table technology(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
-        db.execSQL("create table sports(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING)");
+        db.execSQL("create table news(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING, category STRING)");
+        db.execSQL("create table staredID(newsID STRING, id INTEGER PRIMARY KEY AUTOINCREMENT)");
         db.execSQL("create table visitedID(newsID STRING, id INTEGER PRIMARY KEY AUTOINCREMENT)");
+        db.execSQL("create table searched(searchHistory STRING, id INTEGER PRIMARY KEY AUTOINCREMENT)");
 
         Toast.makeText(mContext, "Database create succeeded", Toast.LENGTH_SHORT).show();
     }
