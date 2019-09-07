@@ -126,6 +126,7 @@ public class NewsActivity extends Activity {
 
 //        recNews.add(mNews);
         for(int i=0;i<recNews.size();i++){
+            cards[i].setVisibility(View.VISIBLE);
             rectime[i].setText(recNews.get(i).getPublishTime());
             rectitle[i].setText(recNews.get(i).getTitle());
             rectext[i].setText(recNews.get(i).getContent());
