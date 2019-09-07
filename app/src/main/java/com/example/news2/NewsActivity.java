@@ -38,7 +38,7 @@ public class NewsActivity extends Activity {
     TextView[] rectitle = new TextView[3];
     TextView[] rectext = new TextView[3];
     ImageView[] recimage = new ImageView[3];
-    final ImageButton[] recstar = new ImageButton[3];
+    ImageButton[] recstar = new ImageButton[3];
     ProgressBar mProgressBar;
 
     @Override
@@ -127,6 +127,7 @@ public class NewsActivity extends Activity {
         for(int i=0;i<3;i++){
             cards[i].setVisibility(View.GONE);
         }
+
         recstar[0].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -141,6 +142,7 @@ public class NewsActivity extends Activity {
                 }
             }
         });
+
         recstar[1].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -155,6 +157,7 @@ public class NewsActivity extends Activity {
                 }
             }
         });
+
         recstar[2].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -170,20 +173,40 @@ public class NewsActivity extends Activity {
             }
         });
 
+        cards[0].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(NewsActivity.this,NewsActivity.class);
+                MainActivity.addToHistory(recNews.get(0));
+                intent.putExtra("news",recNews.get(0));
+                startActivity(intent);
+                rectext[0].setTextColor(Color.parseColor("#969696"));
+            }
+        });
 
-        keywords = mNews.getKeywords();
-        Collections.sort(keywords);
-        String searchKey = "no keywords";
-        if(keywords.size() >= 3){
-            searchKey = keywords.get(0).getWord() + " " + keywords.get(1).getWord() + " " + keywords.get(2).getWord();
-        }else if(keywords.size() == 2){
-            searchKey = keywords.get(0).getWord() + " " + keywords.get(1).getWord();
-        }else if(keywords.size() == 1){
-            searchKey = keywords.get(0).getWord();
-        }
-        Log.e("*********", searchKey);
+        cards[1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(NewsActivity.this,NewsActivity.class);
+                MainActivity.addToHistory(recNews.get(1));
+                intent.putExtra("news",recNews.get(1));
+                startActivity(intent);
+                rectext[1].setTextColor(Color.parseColor("#969696"));
+            }
+        });
 
-        recNews.add(mNews);
+        cards[2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(NewsActivity.this,NewsActivity.class);
+                MainActivity.addToHistory(recNews.get(2));
+                intent.putExtra("news",recNews.get(2));
+                startActivity(intent);
+                rectext[2].setTextColor(Color.parseColor("#969696"));
+            }
+        });
+
+//        recNews.add(mNews);
         for(int i=0;i<recNews.size();i++){
             cards[i].setVisibility(View.VISIBLE);
             rectime[i].setText(recNews.get(i).getPublishTime());
