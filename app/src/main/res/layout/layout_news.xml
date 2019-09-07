@@ -71,6 +71,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/nVideo"
                     app:layout_constraintBottom_toBottomOf="parent"/>
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/rec1"
                     android:layout_width="match_parent"
                     android:layout_height="236dp"
                     android:layout_marginRight="4dp"
@@ -134,14 +135,17 @@
                             android:layout_margin="6dp"/>
 
                     </LinearLayout>
-                </androidx.cardview.widget.CardView><androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="236dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginLeft="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="16dp"
-                app:cardBackgroundColor="@color/colorWhite">
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/rec2"
+                    android:layout_width="match_parent"
+                    android:layout_height="236dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginLeft="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="16dp"
+                    app:cardBackgroundColor="@color/colorWhite">
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="match_parent"
@@ -198,14 +202,17 @@
                         android:layout_margin="6dp"/>
 
                 </LinearLayout>
-            </androidx.cardview.widget.CardView><androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="236dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginLeft="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="16dp"
-                app:cardBackgroundColor="@color/colorWhite">
+            </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/rec3"
+                    android:layout_width="match_parent"
+                    android:layout_height="236dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginLeft="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="16dp"
+                    app:cardBackgroundColor="@color/colorWhite">
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="match_parent"

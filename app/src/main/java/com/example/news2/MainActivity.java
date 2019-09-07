@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final int numOfCategories = 11;
     private static final String[] categories = {"Latest News", "Entertainment", "Military", "Education", "Culture", "Health", "Finance", "Sports", "Automotive", "Technology", "Society"};
-//    private static final String[] categoriesDB = {"recommend", "entertainment", "military", "education", "culture", "healthy", "finance", "sports", "cars", "technology", "society"};
+    //    private static final String[] categoriesDB = {"recommend", "entertainment", "military", "education", "culture", "healthy", "finance", "sports", "cars", "technology", "society"};
     private static final String[] categoriesCN = {"", "娱乐", "军事", "教育", "文化", "健康", "财经", "体育", "汽车", "科技", "社会"};
     private static Map<String,Integer> cate = new HashMap<>();
     private static Integer lastestIndex = 10;
@@ -822,7 +822,8 @@ public class MainActivity extends AppCompatActivity
 
     private void addDataToDb() {
         //先不取最新时间 df.format(time)
-        String jsonText = result("1000", "", "2019-09-07 20:00:00", "", "");
+        String jsonText = result("300", "", "2019-09-07", "", "");
+        Log.e("***************", jsonText);
         ContentValues values = new ContentValues();
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
         JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
@@ -982,3 +983,4 @@ public class MainActivity extends AppCompatActivity
         return night;
     }
 }
+

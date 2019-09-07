@@ -92,8 +92,6 @@ public class NewsAdapter extends BaseAdapter {
                     Log.e("yoooooooooooo", "Man?");
                 }
             }
-
-
         }
         if (mNews.getVisited()) {
             text.setTextColor(Color.parseColor("#969696"));
