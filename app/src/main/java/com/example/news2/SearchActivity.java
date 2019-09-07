@@ -1,8 +1,11 @@
 package com.example.news2;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -53,13 +56,20 @@ public class SearchActivity extends Activity {
     private LinearLayout[] his = new LinearLayout[4];
     private int[] historyIds = new int[4];
     private int[] historyviewIds = new int[4];
+    private MyDatabaseHelper dbHelper;
+    private static SQLiteDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_search);
-
         df.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+
+        dbHelper = new MyDatabaseHelper(this, "newsDB.db", null, 1);
+        db = dbHelper.getWritableDatabase();
+
+        initSearchHistory();
+
         initView();
         initData();
         setListener();
@@ -85,7 +95,6 @@ public class SearchActivity extends Activity {
 
         searchhistory_view = findViewById(R.id.history_view);
         searchhistory_view.setVisibility(View.GONE);
-        searchHistory.add("h1");
         if(searchHistory.size()>0){
             TypedArray searchhistory_array = this.getResources().obtainTypedArray(R.array.searchhistory_array);
             TypedArray historyview_array = this.getResources().obtainTypedArray(R.array.historyview_array);
@@ -167,14 +176,35 @@ public class SearchActivity extends Activity {
         }
     }
 
-    private ArrayList<News> Search(final String query) {
-        Log.e("****************", query);
+    private void initSearchHistory(){
+        Cursor cursor = db.query("searched", null, null, null, null, null, "id desc");
+        if(cursor.moveToFirst()){
+            do{
+                String str = cursor.getString(cursor.getColumnIndex("searchHistory"));
+                searchHistory.add(str);
+                if(searchHistory.size()==4)
+                    break;
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+    }
+
+    private ArrayList<News> Search(final String str) {
+        Cursor cursor = db.query("searched", null, "searchHistory=?", new String[]{str}, null, null, null);
+        if(cursor.getCount() != 0){
+            db.delete("searched","searchHistory=?", new String[]{str});
+        }
+        cursor.close();
+        ContentValues values = new ContentValues();
+        values.put("searchHistory", str);
+        db.insert("searched", null, values);
+
         ArrayList<News> lst = new ArrayList<>();
         Thread search;
         search = new Thread(new Runnable() {
             @Override
             public void run() {
-                searchNews = result("50", "", df.format(time), query, "");
+                searchNews = result("50", "", df.format(time), str, "");
             }
         });
         search.start();
