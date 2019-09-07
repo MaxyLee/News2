@@ -129,10 +129,10 @@ public class MainActivity extends AppCompatActivity
 //        dbHelper.deleteDatabase(this);
         db = dbHelper.getWritableDatabase();
 //        删除数据库中的记录
-//        db.delete("news", null, null);
-//        db.delete("updateNews", null, null);
-//        db.delete("staredID", null, null);
-//        db.delete("visitedID", null, null);
+        db.delete("news", null, null);
+        db.delete("updateNews", null, null);
+        db.delete("staredID", null, null);
+        db.delete("visitedID", null, null);
 
         //判断数据库是否为空，若为空，则加载数据
         isEmpty();
