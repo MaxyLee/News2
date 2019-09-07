@@ -1,7 +1,9 @@
 package com.example.news2;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -18,12 +20,29 @@ import android.widget.VideoView;
 import androidx.cardview.widget.CardView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.squareup.picasso.Picasso;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TimeZone;
 
 public class NewsActivity extends Activity {
 
@@ -40,6 +59,11 @@ public class NewsActivity extends Activity {
     ImageView[] recimage = new ImageView[3];
     ImageButton[] recstar = new ImageButton[3];
     ProgressBar mProgressBar;
+    String newsID;
+    private Date Time = new Date();
+    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String searchNews = "";
+    String searchKey = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +72,7 @@ public class NewsActivity extends Activity {
         mNews = (News) getIntent().getSerializableExtra("news");
 
         Log.e("yoooooooooooo","whats up man?");
+        df.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
 
         title = findViewById(R.id.nTitle);
         publisher = findViewById(R.id.nPublisher);
@@ -173,6 +198,41 @@ public class NewsActivity extends Activity {
             }
         });
 
+        newsID = mNews.getNewsID();
+        keywords = mNews.getKeywords();
+        Collections.sort(keywords);
+
+        if(keywords.size() >= 1){
+            searchKey = keywords.get(0).getWord();
+            Thread search;
+            search = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    searchNews = result("15", "", df.format(Time), searchKey, "");
+                }
+            });
+            search.start();
+            try{
+                search.join();
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+
+            JsonObject jsonObject = (JsonObject) new JsonParser().parse(searchNews);
+            JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
+            for(int i = 0; i < jsonObjects.size(); i++){
+                News temp = new Gson().fromJson(jsonObjects.get(i).toString(), News.class);
+                temp.setImages();
+                if(temp.getNewsID().equals(newsID))
+                    continue;
+                recNews.add(temp);
+                if(recNews.size() == 3)
+                    break;
+            }
+        }
+        Log.e("*********", searchKey);
+
+
         cards[0].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -206,7 +266,6 @@ public class NewsActivity extends Activity {
             }
         });
 
-//        recNews.add(mNews);
         for(int i=0;i<recNews.size();i++){
             cards[i].setVisibility(View.VISIBLE);
             rectime[i].setText(recNews.get(i).getPublishTime());
@@ -246,5 +305,52 @@ public class NewsActivity extends Activity {
             }
         });
     }
+    public String httpRequest(String requestUrl, Map params) {
+        StringBuffer buffer = new StringBuffer();
+        try {
+            URL url = new URL(requestUrl + "?" + urlEncode(params));
+            HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();
+            httpUrlConn.setDoInput(true);
+            httpUrlConn.setRequestMethod("GET");
+            httpUrlConn.connect();
+            InputStream inputStream = httpUrlConn.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String str = null;
+            while ((str = bufferedReader.readLine()) != null) {
+                buffer.append(str);
+            }
+            bufferedReader.close();
+            inputStreamReader.close();
+            inputStream.close();
+            inputStream = null;
+            httpUrlConn.disconnect();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return buffer.toString();
+    }
 
+    public String result(String size, String startDate, String endDate, String words, String categories) {
+        String requestUrl = "https://api2.newsminer.net/svc/news/queryNewsList";
+        Map params = new LinkedHashMap();
+        params.put("size", size);
+        params.put("startDate", startDate);
+        params.put("endDate", endDate);
+        params.put("words", words);
+        params.put("categories", categories);
+        String str = httpRequest(requestUrl, params);
+        return str;
+    }
+
+    public String urlEncode(Map<String, Object> data) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry i : data.entrySet()) {
+            sb.append(i.getKey()).append("=").append(URLEncoder.encode((String) i.getValue())).append("&");
+        }
+        sb.delete(sb.length() - 1, sb.length());
+        return sb.toString();
+    }
 }
