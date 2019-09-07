@@ -16,6 +16,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db){
         db.execSQL("create table news(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING, category STRING)");
+        db.execSQL("create table updateNews(newsJson TEXT, publishTime TEXT, visited INT DEFAULT 0 NOT NULL, newsID STRING, category STRING)");
         db.execSQL("create table staredID(newsID STRING, id INTEGER PRIMARY KEY AUTOINCREMENT)");
         db.execSQL("create table visitedID(newsID STRING, id INTEGER PRIMARY KEY AUTOINCREMENT)");
         db.execSQL("create table searched(searchHistory STRING, id INTEGER PRIMARY KEY AUTOINCREMENT)");
