@@ -21,11 +21,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
+
+import java.util.ArrayList;
 
 public class NewsActivity extends Activity {
 
     News mNews;
-    ArrayList<News> recNews;
+    ArrayList<Keywords> keywords = new ArrayList<>();
+    ArrayList<News> recNews = new ArrayList<>();
     TextView title,publisher,time,text;
     ImageView image;
     VideoView video;
@@ -34,7 +38,7 @@ public class NewsActivity extends Activity {
     TextView[] rectitle = new TextView[3];
     TextView[] rectext = new TextView[3];
     ImageView[] recimage = new ImageView[3];
-    ImageButton[] recstar = new ImageButton[3];
+    final ImageButton[] recstar = new ImageButton[3];
     ProgressBar mProgressBar;
 
     @Override
@@ -123,8 +127,63 @@ public class NewsActivity extends Activity {
         for(int i=0;i<3;i++){
             cards[i].setVisibility(View.GONE);
         }
+        recstar[0].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mNews.getStared()) {
+                    recstar[0].setImageDrawable(getDrawable(R.drawable.star_border));
+                    MainActivity.removeFromStared(mNews);
+                    mNews.setStared(false);
+                } else {
+                    recstar[0].setImageDrawable(getDrawable(R.drawable.star_yellow));
+                    MainActivity.addToStared(mNews);
+                    mNews.setStared(true);
+                }
+            }
+        });
+        recstar[1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mNews.getStared()) {
+                    recstar[1].setImageDrawable(getDrawable(R.drawable.star_border));
+                    MainActivity.removeFromStared(mNews);
+                    mNews.setStared(false);
+                } else {
+                    recstar[1].setImageDrawable(getDrawable(R.drawable.star_yellow));
+                    MainActivity.addToStared(mNews);
+                    mNews.setStared(true);
+                }
+            }
+        });
+        recstar[2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mNews.getStared()) {
+                    recstar[2].setImageDrawable(getDrawable(R.drawable.star_border));
+                    MainActivity.removeFromStared(mNews);
+                    mNews.setStared(false);
+                } else {
+                    recstar[2].setImageDrawable(getDrawable(R.drawable.star_yellow));
+                    MainActivity.addToStared(mNews);
+                    mNews.setStared(true);
+                }
+            }
+        });
 
-//        recNews.add(mNews);
+
+        keywords = mNews.getKeywords();
+        Collections.sort(keywords);
+        String searchKey = "no keywords";
+        if(keywords.size() >= 3){
+            searchKey = keywords.get(0).getWord() + " " + keywords.get(1).getWord() + " " + keywords.get(2).getWord();
+        }else if(keywords.size() == 2){
+            searchKey = keywords.get(0).getWord() + " " + keywords.get(1).getWord();
+        }else if(keywords.size() == 1){
+            searchKey = keywords.get(0).getWord();
+        }
+        Log.e("*********", searchKey);
+
+        recNews.add(mNews);
         for(int i=0;i<recNews.size();i++){
             cards[i].setVisibility(View.VISIBLE);
             rectime[i].setText(recNews.get(i).getPublishTime());
@@ -133,27 +192,13 @@ public class NewsActivity extends Activity {
             if (recNews.get(i).getImages() != null) {
                 if (recNews.get(i).getImages().length > 0) {
                     try {
-                        Picasso.with(this).load(recNews.get(i).getImages()[0]).placeholder(R.mipmap.logo3).into(image);
+                        Picasso.with(this).load(recNews.get(i).getImages()[0]).placeholder(R.mipmap.logo3).into(recimage[i]);
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.e("yoooooooooooo", "Man?");
                     }
                 }
             }
-            recstar[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mNews.getStared()) {
-                        recstar[i].setImageDrawable(getDrawable(R.drawable.star_border));
-                        MainActivity.removeFromStared(mNews);
-                        mNews.setStared(false);
-                    } else {
-                        recstar[i].setImageDrawable(getDrawable(R.drawable.star_yellow));
-                        MainActivity.addToStared(mNews);
-                        mNews.setStared(true);
-                    }
-                }
-            });
             if (recNews.get(i).getVisited()) {
                 rectext[i].setTextColor(Color.parseColor("#969696"));
             }
