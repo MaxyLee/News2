@@ -213,24 +213,29 @@ public class NewsActivity extends Activity {
             });
             search.start();
             try{
-                search.join();
+                search.join(800);
             }catch(InterruptedException e){
                 e.printStackTrace();
             }
+            if(!searchNews.equals("")){
+                JsonObject jsonObject = (JsonObject) new JsonParser().parse(searchNews);
+                JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
+                Log.e("*******************", jsonObjects.size()+"");
 
-            JsonObject jsonObject = (JsonObject) new JsonParser().parse(searchNews);
-            JsonArray jsonObjects = jsonObject.get("data").getAsJsonArray();
-            for(int i = 0; i < jsonObjects.size(); i++){
-                News temp = new Gson().fromJson(jsonObjects.get(i).toString(), News.class);
-                temp.setImages();
-                if(temp.getNewsID().equals(newsID))
-                    continue;
-                recNews.add(temp);
-                if(recNews.size() == 3)
-                    break;
+                for(int i = 0; i < jsonObjects.size(); i++){
+                    News temp = new Gson().fromJson(jsonObjects.get(i).toString(), News.class);
+                    temp.setImages();
+                    if(temp.getNewsID().equals(newsID))
+                        continue;
+                    recNews.add(temp);
+                    if(recNews.size() == 3)
+                        break;
+                }
             }
         }
         Log.e("*********", searchKey);
+
+
 
 
         cards[0].setOnClickListener(new View.OnClickListener() {
@@ -268,6 +273,7 @@ public class NewsActivity extends Activity {
 
         for(int i=0;i<recNews.size();i++){
             cards[i].setVisibility(View.VISIBLE);
+            recimage[i].setScaleType(ImageView.ScaleType.CENTER_CROP);
             rectime[i].setText(recNews.get(i).getPublishTime());
             rectitle[i].setText(recNews.get(i).getTitle());
             rectext[i].setText(recNews.get(i).getContent());

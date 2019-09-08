@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity
     private View[] mViews = new View[numOfCategories];
     private int[] layoutIds = new int[numOfCategories];
     private int[] listviewIds = new int[numOfCategories];
-    private boolean[] selected = new boolean[numOfCategories];
+    private static boolean[] selected = new boolean[numOfCategories];
     private String[] titles = new String[numOfCategories];
     private MyDatabaseHelper dbHelper;
     private ArrayList<ArrayList<News>> total = new ArrayList<>();
@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int i = vp.getCurrentItem();
+                int i = getAbsCurrent();
                 mListViews[i].smoothScrollToPosition(mListViews[i].getCount());
 //                mListViews[i].invalidate();
 //                mNewsAdapters[i].updateView();
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity
         db = dbHelper.getWritableDatabase();
 //        删除数据库中的记录
 //        db.delete("news", null, null);
-//        db.delete("updateNews", null, null);
+        db.delete("updateNews", null, null);
 //        db.delete("staredID", null, null);
 //        db.delete("visitedID", null, null);
 
@@ -181,11 +181,24 @@ public class MainActivity extends AppCompatActivity
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Log.d("mmmmmmmmmmmmmmaxy",""+i);
                     Intent intent = new Intent(MainActivity.this,NewsActivity.class);
-                    News tNews = total.get(vp.getCurrentItem()).get(i-1);
+                    int curr = vp.getCurrentItem();
+                    int absCurr = -1;
+                    int cnt = -1;
+                    for(int j=0;j<numOfCategories;j++){
+                        if(selected[j]){
+                            cnt++;
+                        }
+                        absCurr++;
+                        if(cnt==curr){
+                            break;
+                        }
+                    }
+                    Log.e("ccccccc",curr+":"+absCurr);
+                    News tNews = total.get(absCurr).get(i-1);
                     addToHistory(tNews);
                     intent.putExtra("news",tNews);
                     startActivity(intent);
-                    mNewsAdapters[vp.getCurrentItem()].notifyDataSetChanged();
+                    mNewsAdapters[absCurr].notifyDataSetChanged();
                 }
             });
             mListViews[i].setInterface(this);
@@ -331,19 +344,32 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void PullLoad() {
         final int currentView = vp.getCurrentItem();
+        int absCurr = -1;
+        int cnt = -1;
+        for(int j=0;j<numOfCategories;j++){
+            if(selected[j]){
+                cnt++;
+            }
+            absCurr++;
+            if(cnt==currentView){
+                break;
+            }
+        }
+        final int cnm = absCurr;
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                ArrayList<News> get = refreshData();
+
+                ArrayList<News> get = refreshData(cnm);
                 if(get==null){
                     Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
                 }else if(get.size()==0){
                     Toast.makeText(MainActivity.this, "Nothing New", Toast.LENGTH_SHORT).show();
                 }else {
-                    mNewsAdapters[currentView].addBefore(get);
+                    mNewsAdapters[cnm].addBefore(get);
                     Toast.makeText(MainActivity.this, get.size()+"piece(s) of news refreshed", Toast.LENGTH_SHORT).show();
                 }
-                mListViews[currentView].loadComplete();
+                mListViews[cnm].loadComplete();
             }
         },1000);
     }
@@ -351,12 +377,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoad() {
         final int currentView = vp.getCurrentItem();
+        int absCurr = -1;
+        int cnt = -1;
+        for(int j=0;j<numOfCategories;j++){
+            if(selected[j]){
+                cnt++;
+            }
+            absCurr++;
+            if(cnt==currentView){
+                break;
+            }
+        }
+        final int cnm = absCurr;
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                ArrayList<News> get = loadData();
-                mNewsAdapters[currentView].addNewsItems(get);
-                mListViews[currentView].loadComplete();
+                ArrayList<News> get = loadData(cnm);
+                mNewsAdapters[cnm].addNewsItems(get);
+                mListViews[cnm].loadComplete();
             }
         },1000);
     }
@@ -418,9 +456,9 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private ArrayList<News> loadData() {
+    private ArrayList<News> loadData(int curr) {
         ArrayList<News> lst = new ArrayList<>();
-        if(vp.getCurrentItem() == 0){
+        if(curr == 0){
             Cursor cursor = db.query(true, "news", null, "visited=?", new String[]{"0"}, null, null, "publishTime desc", lastestIndex.toString()+", 10");
             if (cursor.moveToFirst()) {
                 do {
@@ -446,8 +484,8 @@ public class MainActivity extends AppCompatActivity
             if (cursor.moveToFirst()) {
                 do {
                     String category = cursor.getString(cursor.getColumnIndex("category"));
-                    if(lst.size() <= 10){
-                        if(category.equals(categoriesCN[vp.getCurrentItem()])){
+                    if(lst.size() != 10){
+                        if(category.equals(categoriesCN[curr])){
                             String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                             News temp = new Gson().fromJson(jsonStr, News.class);
                             Cursor cursor1 = db.query("visitedID", new String[]{"newsID"}, "newsID = ?", new String[]{temp.getNewsID()}, null, null, null);
@@ -477,7 +515,8 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private ArrayList<News> refreshData() {
+    private ArrayList<News> refreshData(int curr) {
+        Log.e("***************", curr+"");
         ArrayList<News> lst = new ArrayList<>();
         lastestNews = "";
         Cursor cursor = db.query("news", new String[]{"publishTime"}, null, null, null, null, "publishTime desc", "1" );
@@ -530,11 +569,11 @@ public class MainActivity extends AppCompatActivity
             }
         }
         cursor.close();
-        if(flag[vp.getCurrentItem()])
+        if(flag[curr])
             return lst;
         else{
-            flag[vp.getCurrentItem()] = true;
-            if(vp.getCurrentItem() == 0){
+            flag[curr] = true;
+            if(curr == 0){
                 cursor = db.query("updateNews", null, null, null, null, null, "publishTime desc");
                 if(cursor.moveToFirst()){
                     do{
@@ -555,7 +594,7 @@ public class MainActivity extends AppCompatActivity
                 cursor.close();
                 return lst;
             }else{
-                cursor = db.query("updateNews", null, "category=?", new String[]{categoriesCN[vp.getCurrentItem()]}, null, null, "publishTime desc");
+                cursor = db.query("updateNews", null, "category=?", new String[]{categoriesCN[curr]}, null, null, "publishTime desc");
                 if(cursor.moveToFirst()){
                     do{
                         String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
@@ -596,13 +635,7 @@ public class MainActivity extends AppCompatActivity
                 String category = cursor.getString(cursor.getColumnIndex("category"));
                 String jsonStr = cursor.getString(cursor.getColumnIndex("newsJson"));
                 News temp = new Gson().fromJson(jsonStr, News.class);
-                ArrayList<Keywords> keywords = temp.getKeywords();
                 if(lastest.size() <= 10){
-                    Collections.sort(keywords);
-                    Log.e("Keywords", keywords.size()+"");
-                    for(int j = 0; j < keywords.size(); j++)
-                        Log.e("Keywords", keywords.get(j).getScore()+" "+keywords.get(j).getWord());
-                    Log.e("***************", "-------------------------------------------");
                     Cursor cursor1 = db.query("visitedID", new String[]{"newsID"}, "newsID = ?", new String[]{temp.getNewsID()}, null, null, null);
                     if(cursor1.getCount() != 0)
                         temp.setVisited();
@@ -822,7 +855,7 @@ public class MainActivity extends AppCompatActivity
 
     private void addDataToDb() {
         //先不取最新时间 df.format(time)
-        String jsonText = result("300", "", "2019-09-07", "", "");
+        String jsonText = result("1000", "", "2019-09-07 20:00:00", "", "");
         Log.e("***************", jsonText);
         ContentValues values = new ContentValues();
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonText);
@@ -958,7 +991,8 @@ public class MainActivity extends AppCompatActivity
             db.insert("staredID", null, values);
         }
         cursor.close();
-        int i = vp.getCurrentItem();
+        int i = getAbsCurrent();
+
         int i2 = cate.get(news.getCategory());
         mNewsAdapters[i].notifyDataSetChanged();
         mNewsAdapters[i2].notifyDataSetChanged();
@@ -975,12 +1009,28 @@ public class MainActivity extends AppCompatActivity
                 break;
             }
         }
-        int i = vp.getCurrentItem();
+        int i = getAbsCurrent();
         mNewsAdapters[i].notifyDataSetChanged();
     }
 
     public static boolean getNight() {
         return night;
+    }
+
+    private static int getAbsCurrent(){
+        int currentView = vp.getCurrentItem();
+        int absCurr = -1;
+        int cnt = -1;
+        for(int j=0;j<numOfCategories;j++){
+            if(selected[j]){
+                cnt++;
+            }
+            absCurr++;
+            if(cnt==currentView){
+                break;
+            }
+        }
+        return absCurr;
     }
 }
 

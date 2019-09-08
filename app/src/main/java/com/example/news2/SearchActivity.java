@@ -48,7 +48,7 @@ public class SearchActivity extends Activity {
     private TextView[] histories = new TextView[4];
     private NewsAdapter mNewsAdapter;
     private ArrayList<News> mNews = new ArrayList<>();
-    private String searchNews;
+    private String searchNews = "";
     private Date time = new Date();
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private LinearLayout searchhistory_view;
@@ -209,7 +209,7 @@ public class SearchActivity extends Activity {
         });
         search.start();
         try{
-            search.join();
+            search.join(5000);
         }catch(InterruptedException e){
             e.printStackTrace();
         }
